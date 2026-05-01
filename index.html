@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>NSCH - CYBER AWARENESS QUIZ</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <!-- Open Graph / Facebook -->
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://examportalcampushub.vercel.app/" />
+    <meta property="og:title" content="Safe Netizen - Student Exam Portal" />
+    <meta property="og:description" content="Test Your Knowledge • Master Your Digital Safety." />
+    <meta property="og:image" content="https://examportalcampushub.vercel.app/share.jpg?v=2" />
+    <meta property="og:image:type" content="image/jpeg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://examportalcampushub.vercel.app/" />
+    <meta property="twitter:title" content="Safe Netizen - Student Exam Portal" />
+    <meta property="twitter:description" content="Test Your Knowledge • Master Your Digital Safety." />
+    <meta property="twitter:image" content="https://examportalcampushub.vercel.app/share.jpg?v=2" />
+
+    <!-- Schema.org for Google -->
+    <meta itemprop="image" content="https://examportalcampushub.vercel.app/share.jpg?v=2" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Prevent Google Translate from translating icons */
+        .material-symbols-outlined {
+            translate: no;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen"
+        class="fixed inset-0 z-[100] bg-black flex items-center justify-center transition-opacity duration-700 ease-in-out">
+        <video id="splash-video" class="w-full h-full object-cover" muted playsinline>
+            <source src="splash.mp4" type="video/mp4">
+        </video>
+        <button id="skip-splash"
+            class="absolute bottom-8 right-8 text-white/50 hover:text-white text-sm font-bold border border-white/20 rounded-full px-4 py-2 hover:bg-white/10 transition-all">SKIP</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const splash = document.getElementById('splash-screen');
+            const video = document.getElementById('splash-video');
+            const skip = document.getElementById('skip-splash');
+
+            const dismissSplash = () => {
+                splash.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => splash.remove(), 700);
+            };
+
+            // Attempt to play
+            video.play().catch(e => {
+                console.log("Autoplay blocked, showing skip button mainly.", e);
+                // If blocked, we might want to just show it paused or dismiss if critical?
+                // Often better to let user click skip or interact. 
+                // But for splash, usually muted plays fine.
+            });
+
+            video.addEventListener('ended', dismissSplash);
+            skip.addEventListener('click', dismissSplash);
+        });
+    </script>
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-container" class="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-[#101622]">
+        <div id="auth-translate-holder" class="absolute top-5 right-5 z-[60]">
+            <button id="auth-translate-btn" onclick="openGoogleTranslate()" type="button"
+                class="w-10 h-10 rounded-full bg-white dark:bg-[#1a2235] shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 transition-all border border-slate-100 dark:border-slate-700 group"
+                title="Change Language">
+                <span
+                    class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-xl notranslate group-hover:text-primary transition-colors">translate</span>
+            </button>
+            <div id="google_translate_element" class="auth-translate-hidden"></div>
+        </div>
+        <div class="w-full max-w-2xl p-8">
+            <div class="text-center mb-10">
+                <img src="NSCH Logo (1).png" alt="NSCH Logo" class="w-48 h-auto object-contain mx-auto mb-6">
+            </div>
+
+            <div
+                class="bg-white dark:bg-[#1a2235] p-8 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 max-w-md mx-auto">
+                <div class="flex gap-4 mb-6 p-1 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <button onclick="switchAuth('login')" id="tab-login"
+                        class="flex-1 py-2 text-sm font-bold rounded-md bg-white text-primary shadow-sm transition-all">Login</button>
+                    <button onclick="switchAuth('signup')" id="tab-signup"
+                        class="flex-1 py-2 text-sm font-bold rounded-md text-slate-500 hover:text-slate-700 transition-all">Register</button>
+                </div>
+
+                <form id="auth-form" class="flex flex-col gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Email Address</label>
+                        <input type="email" id="auth-email" required
+                            class="w-full rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-700 p-3 shadow-sm focus:ring-primary focus:border-primary"
+                            placeholder="student@university.edu">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Password</label>
+                        <input type="password" id="auth-password" required
+                            class="w-full rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-700 p-3 shadow-sm focus:ring-primary focus:border-primary"
+                            placeholder="••••••••">
+                    </div>
+                    <button type="submit" id="btn-auth"
+                        class="bg-primary text-white py-3.5 rounded-xl font-bold shadow-lg shadow-primary/30 mt-2 hover:scale-[1.02] transition-transform">Sign
+                        In</button>
+                </form>
+
+                <div class="mt-4">
+                    <button type="button" id="btn-google"
+                        class="w-full bg-white dark:bg-slate-700 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-600 py-3.5 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                        Sign in with Google
+                    </button>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        powered by : <a href="https://NSCHindia.in" target="_blank"
+                            class="text-primary hover:underline">Nitin Shrimali's Cyber Hygiene</a>
+                    </p>
+                </div>
+
+                <p id="auth-error" class="text-red-500 text-xs font-bold mt-4 text-center hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP CONTAINER (Hidden initially) -->
+    <div id="app-container" class="flex h-screen w-full overflow-hidden hidden">
+
+        <!-- Mobile Sidebar Overlay -->
+        <div id="mobile-sidebar-overlay"
+            class="fixed inset-0 bg-black/50 z-30 hidden md:hidden glass transition-opacity" onclick="toggleSidebar()">
+        </div>
+
+        <!-- Sidebar (Updated for Responsive: fixed on mobile, static on desktop) -->
+        <aside id="sidebar"
+            class="fixed inset-y-0 left-0 z-40 w-64 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a2235] transition-transform duration-300 -translate-x-full md:translate-x-0 md:static md:flex shadow-xl md:shadow-none">
+            <div class="p-6 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <img src="NSCH Logo (1).png" alt="Logo" class="w-10 h-10 object-contain">
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900 dark:text-white leading-tight">Safe Netizen</h1>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Cyber Hygiene Test</p>
+                    </div>
+                </div>
+                <!-- Close button for mobile -->
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-slate-600">
+                    <span class="material-symbols-outlined notranslate">close</span>
+                </button>
+            </div>
+            <nav class="flex flex-col gap-2 px-4 flex-1">
+                <button onclick="switchStudentTab('dashboard')" id="nav-student-dashboard"
+                    class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary text-white w-full text-left">
+                    <span class="material-symbols-outlined notranslate">dashboard</span>
+                    Dashboard
+                </button>
+                <button onclick="switchStudentTab('schedule')" id="nav-student-schedule"
+                    class="flex items-center gap-3 px-3 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 w-full text-left transition-colors">
+                    <span class="material-symbols-outlined notranslate">calendar_month</span>
+                    Schedule
+                </button>
+            </nav>
+            <div id="sidebar-translate-holder" class="px-4 mb-2"></div>
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-slate-600 dark:text-slate-300"
+                        id="user-avatar">
+                        ?
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-slate-900 dark:text-white truncate w-32" id="user-email">
+                            Student
+                        </p>
+                        <p class="text-xs text-green-500 font-bold">● Online</p>
+                    </div>
+                </div>
+                <button onclick="logout()"
+                    class="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-bold transition-colors">
+                    <span class="material-symbols-outlined text-sm notranslate">logout</span> Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-y-auto relative bg-background-light dark:bg-[#101622]">
+
+            <!-- Mobile Header (Visible only on small screens) -->
+            <div
+                class="md:hidden sticky top-0 z-20 flex items-center justify-between p-4 bg-white dark:bg-[#1a2235] border-b border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center gap-2">
+                    <img src="NSCH Logo (1).png" alt="Logo" class="w-8 h-8 object-contain">
+                    <span class="font-bold text-slate-900 dark:text-white">Safe Netizen</span>
+                </div>
+                <button onclick="toggleSidebar()"
+                    class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined notranslate">menu</span>
+                </button>
+            </div>
+
+            <div id="section-student-dashboard"
+                class="p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col gap-6 md:gap-8">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-black">My Exams</h1>
+                        <p class="text-sm text-slate-500">Good luck with your upcoming assessments.</p>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    <div
+                        class="bg-white dark:bg-[#1a2235] p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined notranslate">assignment_turned_in</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Exams Taken</p>
+                            <h3 class="text-2xl font-black" id="stat-exams-taken">0</h3>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-[#1a2235] p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined notranslate">analytics</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Average Score</p>
+                            <h3 class="text-2xl font-black" id="stat-avg-score">0%</h3>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-[#1a2235] p-6 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4 opacity-50">
+                        <div
+                            class="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined notranslate">school</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold uppercase text-slate-500">Grade</p>
+                            <h3 class="text-xl font-bold">Student</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Exam List -->
+                <!-- Dynamic Exam List -->
+                <div id="exam-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Cards Populated by JS -->
+                    <div class="col-span-full text-center py-12 text-slate-400">Loading exams...</div>
+                </div>
+            </div>
+
+            <!-- Schedule Section -->
+            <div id="section-student-schedule"
+                class="hidden p-4 md:p-8 max-w-7xl mx-auto w-full flex flex-col gap-6 md:gap-8 h-full">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-black">Exam Schedule</h1>
+                        <p class="text-sm text-slate-500">View your upcoming assessments.</p>
+                    </div>
+                    <div
+                        class="flex items-center gap-2 bg-white dark:bg-[#1a2235] p-1 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <button onclick="changeCalendarMonth(-1)"
+                            class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"><span
+                                class="material-symbols-outlined notranslate">chevron_left</span></button>
+                        <span id="calendar-month-year" class="font-bold text-sm min-w-[120px] text-center">Month
+                            Year</span>
+                        <button onclick="changeCalendarMonth(1)"
+                            class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"><span
+                                class="material-symbols-outlined notranslate">chevron_right</span></button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-8 h-full">
+                    <!-- Calendar -->
+                    <div
+                        class="flex-1 bg-white dark:bg-[#1a2235] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col">
+                        <div class="grid grid-cols-7 mb-4">
+                            <div class="text-center text-xs font-bold text-slate-400 uppercase py-2">Sun</div>
+                            <div class="text-center text-xs font-bold text-slate-400 uppercase py-2">Mon</div>
+                            <div class="text-center text-xs font-bold text-slate-400 uppercase py-2">Tue</div>
+                            <div class="text-center text-xs font-bold text-slate-400 uppercase py-2">Wed</div>
+                            <div class="text-center text-xs font-bold text-slate-400 uppercase py-2">Thu</div>
+                            <div class="text-center text-xs font-bold text-slate-400 uppercase py-2">Fri</div>
+                            <div class="text-center text-xs font-bold text-slate-400 uppercase py-2">Sat</div>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 flex-1 auto-rows-fr gap-1 min-h-[400px]">
+                            <!-- Days injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Side Panel for Day Details -->
+                    <div
+                        class="w-full lg:w-80 bg-white dark:bg-[#1a2235] rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col max-h-[600px]">
+                        <h3 class="font-bold text-lg mb-4" id="selected-date-title">Select a Date</h3>
+                        <div id="selected-date-exams" class="flex-1 overflow-y-auto flex flex-col gap-3">
+                            <p class="text-slate-400 text-sm text-center my-auto">Click on a date to view exams.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Secure Exam Overlay -->
+    <div id="secure-exam-ui" class="fixed inset-0 z-[100] bg-white w-full h-full flex flex-col hidden select-none"
+        oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+        <div class="max-w-4xl mx-auto flex flex-col h-full w-full">
+            <header
+                class="flex justify-between items-center py-4 px-4 md:py-6 md:px-6 border-b border-slate-200 dark:border-slate-800 mb-6 bg-white dark:bg-[#1a2235]">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold text-primary" id="exam-ui-title">Exam</h2>
+                    <p class="text-xs text-red-500 font-bold flex items-center gap-1 uppercase tracking-widest mt-1">
+                        <span class="material-symbols-outlined text-sm notranslate">lock</span> Secure Browser Mode
+                    </p>
+                </div>
+                <button onclick="window.location.reload()"
+                    class="text-slate-400 hover:text-red-500 font-bold text-xs uppercase">Exit Exam</button>
+            </header>
+
+            <div id="exam-questions-container" class="flex-1 pb-20 overflow-y-auto px-4 md:px-6">
+                <!-- Questions injected here -->
+                <div class="flex items-center justify-center h-full text-slate-400">Loading Exam Interface...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Disclaimer Modal -->
+    <div id="privacy-disclaimer-modal"
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm hidden transition-all duration-300 opacity-0">
+        <div
+            class="bg-white dark:bg-[#1a2235] p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-all duration-300 border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+
+            <!-- Decorative background element -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+            </div>
+
+            <div class="text-center mb-6">
+                <div
+                    class="w-16 h-16 bg-blue-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600 dark:text-blue-400">
+                    <span class="material-symbols-outlined text-3xl notranslate">shield_lock</span>
+                </div>
+                <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">Data Privacy Notice</h3>
+                <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Nitin Shrimali's
+                    Cyber Hygiene</p>
+            </div>
+
+            <div
+                class="prose prose-sm dark:prose-invert text-slate-600 dark:text-slate-300 mb-8 text-center leading-relaxed">
+                <p class="mb-4">As cybersecurity professionals, we respect the value of your digital footprint.</p>
+                <p class="mb-4">This portal is designed to be <strong>data-minimalist</strong>. We only retrieve your
+                    name as per your Google Account for the sole purpose of certificate issuance.</p>
+                <p class="text-xs italic text-slate-400">No other data is harvested or stored on our servers.</p>
+            </div>
+
+            <button id="btn-accept-disclaimer"
+                class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3.5 rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2">
+                Click to continue <span class="material-symbols-outlined text-sm notranslate">arrow_forward</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Google Translate Helper (Moved to Sidebar) -->
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,hi,gu',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript"
+        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

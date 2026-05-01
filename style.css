@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar for Webkit */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #334155;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Glass effect utility if needed */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+}
+
+/* Google Translate Customization */
+body {
+    top: 0 !important;
+}
+
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
+}
+
+#google_translate_element {
+    transition: all 0.3s ease;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background: linear-gradient(to right, #f6f7f8 4%, #edeef1 25%, #f6f7f8 36%);
+    background-size: 1000px 100%;
+}
+
+.dark .animate-shimmer {
+    background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%);
+    background-size: 1000px 100%;
+}
+
+.goog-te-gadget-simple {
+    background-color: transparent !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    font-family: 'Lexend', sans-serif !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    color: #334155 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+}
+
+.dark .goog-te-gadget-simple {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+.goog-te-gadget-simple img {
+    display: none !important;
+}
+
+.goog-te-gadget-simple span {
+    color: inherit !important;
+}
+
+.goog-te-menu-value {
+    color: inherit !important;
+}
+
+.goog-te-menu-value span:first-child {
+    font-weight: 700 !important;
+    padding-right: 4px !important;
+}
+
+.goog-te-menu-value span:nth-child(3) {
+    display: none !important;
+}
+
+.goog-te-menu-value span:nth-child(5) {
+    color: #94a3b8 !important;
+    font-size: 10px !important;
+}
+
+/* Hide Google Translate widget on auth screen - only show the icon */
+.auth-translate-hidden {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+}

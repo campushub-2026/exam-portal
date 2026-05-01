@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Exams: Public read & write (admin auth is handled client-side)
+    match /exams/{examId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Questions: Public read & write
+    match /questions/{questionId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Results: Public read & write (students submit exam results)
+    match /exam_results/{resultId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

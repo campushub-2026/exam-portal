@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "public": true,
+    "name": "campus-hub-portal",
+    "rewrites": [
+        {
+            "source": "/admin",
+            "destination": "/admin.html"
+        },
+        {
+            "source": "/((?!admin\\.html$).*)",
+            "destination": "/index.html"
+        }
+    ]
+}

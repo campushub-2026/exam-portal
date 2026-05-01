@@ -1,0 +1,1504 @@
+{
+  "meta": {
+    "title": "Cyber Hygiene Master Question Bank",
+    "total_questions": 132,
+    "level": "Certificate Grade",
+    "country": "India"
+  },
+  "sections": [
+    {
+      "id": 1,
+      "title": "General Cyber Safety",
+      "questions": [
+        {
+          "id": 1,
+          "question": "What is cyber hygiene?",
+          "options": {
+            "A": "Cleaning devices",
+            "B": "Safe online habits",
+            "C": "Internet speed",
+            "D": "Antivirus only"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 2,
+          "question": "A strong password should contain:",
+          "options": {
+            "A": "Only numbers",
+            "B": "Name and DOB",
+            "C": "Letters, numbers & symbols",
+            "D": "Only small letters"
+          },
+          "answer": "C"
+        },
+        {
+          "id": 3,
+          "question": "What is phishing?",
+          "options": {
+            "A": "Online shopping",
+            "B": "Fake messages to steal login or money",
+            "C": "Antivirus alert",
+            "D": "Government notice"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 4,
+          "question": "Why should software be updated?",
+          "options": {
+            "A": "New emojis",
+            "B": "Fix security weaknesses",
+            "C": "Slow phone",
+            "D": "Remove apps"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 5,
+          "question": "HTTPS on a website means:",
+          "options": {
+            "A": "Secure connection",
+            "B": "Fake website",
+            "C": "Free site",
+            "D": "Slow internet"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 6,
+          "question": "Malware refers to:",
+          "options": {
+            "A": "Antivirus",
+            "B": "Harmful software",
+            "C": "Browser",
+            "D": "Cloud storage"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 7,
+          "question": "Public Wi-Fi is risky because:",
+          "options": {
+            "A": "Free",
+            "B": "Data interception possible",
+            "C": "Slow",
+            "D": "Blocks apps"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 8,
+          "question": "Which should always be kept private?",
+          "options": {
+            "A": "OTP",
+            "B": "Password",
+            "C": "Bank details",
+            "D": "All"
+          },
+          "answer": "D"
+        },
+        {
+          "id": 9,
+          "question": "Two-factor authentication means:",
+          "options": {
+            "A": "Two emails",
+            "B": "Password + OTP",
+            "C": "Two devices",
+            "D": "Two apps"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 10,
+          "question": "Best cyber safety habit is:",
+          "options": {
+            "A": "Clicking quickly",
+            "B": "Verifying before acting",
+            "C": "Sharing details",
+            "D": "Public Wi-Fi"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 11,
+          "question": "Why should passwords not include personal details?",
+          "options": {
+            "A": "Makes it long",
+            "B": "Easily guessed from social media",
+            "C": "Bank blocks it",
+            "D": "Phone slow"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 12,
+          "question": "Safest way to verify a website is genuine?",
+          "options": {
+            "A": "Colour",
+            "B": "HTTPS + correct URL spelling",
+            "C": "Google ads",
+            "D": "Friends"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 13,
+          "question": "Most vulnerable device is one that is:",
+          "options": {
+            "A": "New",
+            "B": "Without updates",
+            "C": "Offline",
+            "D": "Expensive"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 14,
+          "question": "Pirated software risk includes:",
+          "options": {
+            "A": "Ads only",
+            "B": "Malware & backdoor access",
+            "C": "Low speed",
+            "D": "Storage issue"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 15,
+          "question": "Unknown USB drives are dangerous because:",
+          "options": {
+            "A": "Virus auto-executes",
+            "B": "Low quality",
+            "C": "Heat issue",
+            "D": "Slow speed"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 16,
+          "question": "Cyber safety is best described as:",
+          "options": {
+            "A": "One-time action",
+            "B": "Daily habit",
+            "C": "App feature",
+            "D": "Police duty"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 17,
+          "question": "Digital footprint means:",
+          "options": {
+            "A": "Phone size",
+            "B": "Online activity trail",
+            "C": "App cache",
+            "D": "Storage"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 18,
+          "question": "Location sharing should be limited because:",
+          "options": {
+            "A": "Battery drain",
+            "B": "Enables stalking/crime",
+            "C": "App crash",
+            "D": "Network issue"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 19,
+          "question": "Unexpected pop-ups should be:",
+          "options": {
+            "A": "Clicked",
+            "B": "Closed and device scanned",
+            "C": "Filled",
+            "D": "Ignored forever"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 20,
+          "question": "Cyber hygiene is most effective when:",
+          "options": {
+            "A": "Forced",
+            "B": "Practiced daily",
+            "C": "Taught once",
+            "D": "Ignored"
+          },
+          "answer": "B"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Banking, UPI, Phishing & Money Mule",
+      "questions": [
+        {
+          "id": 21,
+          "question": "Why do criminals prefer UPI for fraud?",
+          "options": {
+            "A": "Cashback",
+            "B": "Instant and hard to reverse",
+            "C": "Bank promotion",
+            "D": "Free service"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 22,
+          "question": "A message saying “KYC expired – click now” is:",
+          "options": {
+            "A": "Bank alert",
+            "B": "Phishing scam",
+            "C": "Government notice",
+            "D": "Safe"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 23,
+          "question": "Fraudsters mainly want your:",
+          "options": {
+            "A": "OTP",
+            "B": "City",
+            "C": "Email",
+            "D": "Photo"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 24,
+          "question": "Fake refund scams try to make you:",
+          "options": {
+            "A": "Receive money",
+            "B": "Approve payment",
+            "C": "Download receipt",
+            "D": "Change PIN"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 25,
+          "question": "Enter card details only on:",
+          "options": {
+            "A": "Any website",
+            "B": "Secure official sites",
+            "C": "WhatsApp",
+            "D": "Telegram"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 26,
+          "question": "What is a money mule?",
+          "options": {
+            "A": "A banker",
+            "B": "A person whose account is used to move stolen money",
+            "C": "A shopkeeper",
+            "D": "A cyber police"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 27,
+          "question": "WhatsApp investment tips are usually:",
+          "options": {
+            "A": "Genuine",
+            "B": "High-risk scams",
+            "C": "RBI approved",
+            "D": "Legal"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 28,
+          "question": "A real bank will never ask for:",
+          "options": {
+            "A": "OTP",
+            "B": "Name",
+            "C": "City",
+            "D": "Mobile number"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 29,
+          "question": "If unknown money enters your account, you should:",
+          "options": {
+            "A": "Spend it",
+            "B": "Ignore it",
+            "C": "Report to bank and 1930",
+            "D": "Transfer back blindly"
+          },
+          "answer": "C"
+        },
+        {
+          "id": 30,
+          "question": "To verify a bank call, you should:",
+          "options": {
+            "A": "Trust it",
+            "B": "Call official number",
+            "C": "Pay immediately",
+            "D": "Share OTP"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 31,
+          "question": "Fake KYC scams work because people fear:",
+          "options": {
+            "A": "Fees",
+            "B": "Account suspension",
+            "C": "App update",
+            "D": "Phone lock"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 32,
+          "question": "Approving a UPI collect request means:",
+          "options": {
+            "A": "Receiving money",
+            "B": "Sending money",
+            "C": "Balance check",
+            "D": "Cancel request"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 33,
+          "question": "Fraudsters start with small amounts to:",
+          "options": {
+            "A": "Test app",
+            "B": "Gain trust",
+            "C": "Follow RBI rule",
+            "D": "Reduce GST"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 34,
+          "question": "Allowing others to use your account makes you a:",
+          "options": {
+            "A": "Victim only",
+            "B": "Money mule",
+            "C": "Witness",
+            "D": "Banker"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 35,
+          "question": "Fastest way to block fraud money is:",
+          "options": {
+            "A": "FIR after days",
+            "B": "Call 1930 immediately",
+            "C": "Change SIM",
+            "D": "Switch phone"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 36,
+          "question": "Fake investment apps usually show:",
+          "options": {
+            "A": "Guaranteed returns",
+            "B": "Risk warnings",
+            "C": "RBI licence",
+            "D": "Slow growth"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 37,
+          "question": "Screenshots are unreliable proof because they are:",
+          "options": {
+            "A": "Low quality",
+            "B": "Easy to edit",
+            "C": "Bank ignores them",
+            "D": "Phone bug"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 38,
+          "question": "Safest way to reach bank support is via:",
+          "options": {
+            "A": "Google search result",
+            "B": "Official bank app/website",
+            "C": "WhatsApp message",
+            "D": "SMS reply"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 39,
+          "question": "Fraudsters insist on secrecy to:",
+          "options": {
+            "A": "Protect privacy",
+            "B": "Stop verification",
+            "C": "Save time",
+            "D": "Improve signal"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 40,
+          "question": "Sharing UPI access can lead to:",
+          "options": {
+            "A": "Cashback",
+            "B": "Criminal liability",
+            "C": "Faster transfers",
+            "D": "Account upgrade"
+          },
+          "answer": "B"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Social Media, APK, Sextortion & Child Safety",
+      "questions": [
+        {
+          "id": 41,
+          "question": "Fake social media profiles often use stolen photos to:",
+          "options": {
+            "A": "Look stylish",
+            "B": "Appear trustworthy",
+            "C": "Follow app rules",
+            "D": "Save data"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 42,
+          "question": "Identity theft means:",
+          "options": {
+            "A": "Losing phone",
+            "B": "Using someone’s personal data illegally",
+            "C": "Changing password",
+            "D": "Installing apps"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 43,
+          "question": "APK files are dangerous because they:",
+          "options": {
+            "A": "Slow phone",
+            "B": "Bypass security checks",
+            "C": "Use more data",
+            "D": "Change wallpaper"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 44,
+          "question": "Sextortion usually starts with:",
+          "options": {
+            "A": "Direct threats",
+            "B": "Friendly conversation",
+            "C": "Police notice",
+            "D": "Payment demand"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 45,
+          "question": "Biggest online risk for teenagers is:",
+          "options": {
+            "A": "Gaming loss",
+            "B": "Grooming and exploitation",
+            "C": "Battery drain",
+            "D": "Device heating"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 46,
+          "question": "Screen-sharing apps are risky because they allow criminals to:",
+          "options": {
+            "A": "Improve speed",
+            "B": "See OTPs and control phone",
+            "C": "Update apps",
+            "D": "Clean files"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 47,
+          "question": "Sextortion victims should first:",
+          "options": {
+            "A": "Pay money",
+            "B": "Block and preserve evidence",
+            "C": "Delete account",
+            "D": "Change phone"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 48,
+          "question": "Cyber slavery refers to:",
+          "options": {
+            "A": "Online freelancing",
+            "B": "People forced to run scam networks",
+            "C": "Gaming addiction",
+            "D": "Marketing jobs"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 49,
+          "question": "Criminals target children in games because of:",
+          "options": {
+            "A": "Free games",
+            "B": "Less awareness and supervision",
+            "C": "Better phones",
+            "D": "Rewards"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 50,
+          "question": "Most dangerous data to share online is:",
+          "options": {
+            "A": "Selfie",
+            "B": "ID documents",
+            "C": "Food photos",
+            "D": "Quotes"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 51,
+          "question": "Romance scams usually aim to create:",
+          "options": {
+            "A": "Friendship",
+            "B": "Emotional dependency and financial loss",
+            "C": "Marriage",
+            "D": "Likes"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 52,
+          "question": "Parental control tools mainly help to:",
+          "options": {
+            "A": "Reduce battery use",
+            "B": "Restrict risky content",
+            "C": "Improve gaming",
+            "D": "Increase speed"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 53,
+          "question": "Why are fake profiles dangerous?",
+          "options": {
+            "A": "Waste time",
+            "B": "Used for scams and blackmail",
+            "C": "Use data",
+            "D": "App issue"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 54,
+          "question": "Sextortion messages try to create:",
+          "options": {
+            "A": "Happiness",
+            "B": "Fear and shame",
+            "C": "Fun",
+            "D": "Trust"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 55,
+          "question": "Installing cracked apps can lead to:",
+          "options": {
+            "A": "Free features",
+            "B": "Full device compromise",
+            "C": "Better speed",
+            "D": "No risk"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 56,
+          "question": "Child exploitation online is a:",
+          "options": {
+            "A": "Minor issue",
+            "B": "Serious criminal offence",
+            "C": "Gaming problem",
+            "D": "App bug"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 57,
+          "question": "Sharing private photos online increases risk of:",
+          "options": {
+            "A": "Likes",
+            "B": "Blackmail and misuse",
+            "C": "Better reach",
+            "D": "Storage loss"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 58,
+          "question": "Fake social media giveaways often aim to:",
+          "options": {
+            "A": "Give gifts",
+            "B": "Steal data or money",
+            "C": "Promote brand",
+            "D": "Test app"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 59,
+          "question": "Blocking and reporting fake profiles helps to:",
+          "options": {
+            "A": "Do nothing",
+            "B": "Protect others as well",
+            "C": "Increase ads",
+            "D": "Slow app"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 60,
+          "question": "Awareness is the strongest defence against:",
+          "options": {
+            "A": "Internet",
+            "B": "Online scams",
+            "C": "Apps",
+            "D": "Phones"
+          },
+          "answer": "B"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "WhatsApp & Telegram Based Frauds",
+      "questions": [
+        {
+          "id": 61,
+          "question": "WhatsApp forwards are risky because they often:",
+          "options": {
+            "A": "Use storage",
+            "B": "Lack source verification",
+            "C": "Slow phone",
+            "D": "Crash app"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 62,
+          "question": "Telegram scam groups often disable:",
+          "options": {
+            "A": "Images",
+            "B": "Criticism or comments",
+            "C": "Links",
+            "D": "Admin rights"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 63,
+          "question": "QR codes sent for refunds usually:",
+          "options": {
+            "A": "Credit money",
+            "B": "Debit money",
+            "C": "Check balance",
+            "D": "Block account"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 64,
+          "question": "Fake job scams usually ask for:",
+          "options": {
+            "A": "Resume only",
+            "B": "Registration or training fees",
+            "C": "Interview",
+            "D": "Experience letter"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 65,
+          "question": "Fraudsters change numbers frequently to:",
+          "options": {
+            "A": "Fix network issues",
+            "B": "Avoid tracking",
+            "C": "Get offers",
+            "D": "Improve calls"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 66,
+          "question": "WhatsApp account takeover usually starts with:",
+          "options": {
+            "A": "APK install",
+            "B": "OTP request",
+            "C": "Missed call",
+            "D": "Image"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 67,
+          "question": "Which WhatsApp setting improves safety most?",
+          "options": {
+            "A": "Blue ticks",
+            "B": "Privacy restrictions",
+            "C": "Wallpaper",
+            "D": "Stickers"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 68,
+          "question": "Telegram “signal copy trading” is mostly:",
+          "options": {
+            "A": "Legal trading",
+            "B": "Investment fraud",
+            "C": "RBI scheme",
+            "D": "Bank service"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 69,
+          "question": "Messaging apps are preferred by scammers because of:",
+          "options": {
+            "A": "Better UI",
+            "B": "Fast reach and anonymity",
+            "C": "Storage",
+            "D": "Emojis"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 70,
+          "question": "Best action on suspicious WhatsApp message is to:",
+          "options": {
+            "A": "Reply",
+            "B": "Report and delete",
+            "C": "Forward",
+            "D": "Save"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 71,
+          "question": "Fake loan offers on Telegram often promise:",
+          "options": {
+            "A": "Low interest without checks",
+            "B": "Proper verification",
+            "C": "Bank visits",
+            "D": "Long process"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 72,
+          "question": "QR codes shared by strangers should be:",
+          "options": {
+            "A": "Scanned",
+            "B": "Ignored",
+            "C": "Forwarded",
+            "D": "Saved"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 73,
+          "question": "WhatsApp profile photos can be:",
+          "options": {
+            "A": "Always real",
+            "B": "Easily fake",
+            "C": "Verified",
+            "D": "Safe"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 74,
+          "question": "Fraud links on messaging apps usually create:",
+          "options": {
+            "A": "Excitement",
+            "B": "Urgency or fear",
+            "C": "Happiness",
+            "D": "Relaxation"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 75,
+          "question": "Job offers asking fees are generally:",
+          "options": {
+            "A": "Genuine",
+            "B": "Scam",
+            "C": "Legal",
+            "D": "Safe"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 76,
+          "question": "Telegram admins in scam groups often:",
+          "options": {
+            "A": "Encourage questions",
+            "B": "Ban critics",
+            "C": "Share audits",
+            "D": "Show losses"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 77,
+          "question": "WhatsApp OTP received without request means:",
+          "options": {
+            "A": "Update",
+            "B": "Someone trying to access your account",
+            "C": "Network issue",
+            "D": "Cashback"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 78,
+          "question": "Sharing links blindly in groups can:",
+          "options": {
+            "A": "Help friends",
+            "B": "Spread scams quickly",
+            "C": "Improve reach",
+            "D": "Save time"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 79,
+          "question": "Messaging app scams often rely on:",
+          "options": {
+            "A": "Technical hacking",
+            "B": "Social engineering",
+            "C": "Hardware failure",
+            "D": "App bugs"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 80,
+          "question": "Reporting scam groups helps to:",
+          "options": {
+            "A": "Do nothing",
+            "B": "Reduce further victims",
+            "C": "Increase spam",
+            "D": "Slow app"
+          },
+          "answer": "B"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "1930, Chakshu, CEIR & IT Act",
+      "questions": [
+        {
+          "id": 81,
+          "question": "1930 should be called within:",
+          "options": {
+            "A": "24 hours",
+            "B": "As early as possible (golden hour)",
+            "C": "7 days",
+            "D": "After FIR"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 82,
+          "question": "CEIR portal helps to block:",
+          "options": {
+            "A": "Bank account",
+            "B": "IMEI of stolen phone",
+            "C": "WhatsApp",
+            "D": "SIM recharge"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 83,
+          "question": "Chakshu portal is used to report:",
+          "options": {
+            "A": "Cyber bullying",
+            "B": "Fraud calls and SMS",
+            "C": "Lost phone",
+            "D": "Hacking"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 84,
+          "question": "Cybercrime.gov.in is monitored by:",
+          "options": {
+            "A": "RBI",
+            "B": "Government cyber authorities",
+            "C": "Banks",
+            "D": "Telecom only"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 85,
+          "question": "IT Act applies to crimes committed using:",
+          "options": {
+            "A": "Offline tools",
+            "B": "Computers and internet",
+            "C": "Abroad only",
+            "D": "Banking only"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 86,
+          "question": "Not reporting cyber fraud may lead to:",
+          "options": {
+            "A": "Cashback",
+            "B": "Loss of recovery chance",
+            "C": "Phone upgrade",
+            "D": "No impact"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 87,
+          "question": "Cyber complaints help police to:",
+          "options": {
+            "A": "Advertise",
+            "B": "Track crime patterns",
+            "C": "Sell data",
+            "D": "Delay action"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 88,
+          "question": "Reporting portals also help in:",
+          "options": {
+            "A": "Prevention awareness",
+            "B": "Entertainment",
+            "C": "Speed test",
+            "D": "Recharge"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 89,
+          "question": "SIM misuse is handled by which authority?",
+          "options": {
+            "A": "Bank",
+            "B": "Telecom department",
+            "C": "Courier",
+            "D": "Shop"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 90,
+          "question": "Cyber laws mainly exist to:",
+          "options": {
+            "A": "Punish only",
+            "B": "Protect citizens and systems",
+            "C": "Control internet",
+            "D": "Increase fines"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 91,
+          "question": "Filing cyber complaint creates:",
+          "options": {
+            "A": "Advertisement",
+            "B": "Official legal record",
+            "C": "Spam",
+            "D": "Delay"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 92,
+          "question": "CEIR can help even if phone is:",
+          "options": {
+            "A": "Switched off",
+            "B": "Stolen or lost",
+            "C": "Damaged screen",
+            "D": "Old model"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 93,
+          "question": "Chakshu reports are shared with:",
+          "options": {
+            "A": "Friends",
+            "B": "Telecom operators",
+            "C": "Shops",
+            "D": "Apps"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 94,
+          "question": "Cybercrime portal complaints are forwarded to:",
+          "options": {
+            "A": "Local cyber police",
+            "B": "Banks only",
+            "C": "Media",
+            "D": "Companies"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 95,
+          "question": "IT Act offences are:",
+          "options": {
+            "A": "Civil only",
+            "B": "Criminal in nature",
+            "C": "Informal",
+            "D": "Optional"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 96,
+          "question": "Early reporting improves chances of:",
+          "options": {
+            "A": "Refund and blocking",
+            "B": "Cashback",
+            "C": "Upgrade",
+            "D": "Silence"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 97,
+          "question": "Cyber helplines operate to:",
+          "options": {
+            "A": "Sell services",
+            "B": "Assist victims quickly",
+            "C": "Advertise",
+            "D": "Delay"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 98,
+          "question": "Online evidence should be:",
+          "options": {
+            "A": "Deleted",
+            "B": "Preserved",
+            "C": "Edited",
+            "D": "Shared"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 99,
+          "question": "Cyber reporting is important even for small amounts because:",
+          "options": {
+            "A": "Time pass",
+            "B": "Helps stop larger frauds",
+            "C": "Banks insist",
+            "D": "Phones crash"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 100,
+          "question": "Cyber laws also help in:",
+          "options": {
+            "A": "Awareness building",
+            "B": "Gaming",
+            "C": "Entertainment",
+            "D": "Advertising"
+          },
+          "answer": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Latest Cyber Hygiene Safety Tips",
+      "questions": [
+        {
+          "id": 101,
+          "question": "Why should apps be updated regularly?",
+          "options": {
+            "A": "New features",
+            "B": "Patch security vulnerabilities",
+            "C": "UI change",
+            "D": "Ads"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 102,
+          "question": "Biometric lock adds security because it is:",
+          "options": {
+            "A": "Faster",
+            "B": "Harder to replicate",
+            "C": "Battery saving",
+            "D": "Stylish"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 103,
+          "question": "Cloud backup protects against:",
+          "options": {
+            "A": "Phone theft and ransomware",
+            "B": "Slow internet",
+            "C": "App bugs",
+            "D": "Ads"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 104,
+          "question": "Removing unused apps helps to:",
+          "options": {
+            "A": "Save storage only",
+            "B": "Reduce attack surface",
+            "C": "Heat phone",
+            "D": "Use data"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 105,
+          "question": "Email spoofing means:",
+          "options": {
+            "A": "Fake sender identity",
+            "B": "Spam only",
+            "C": "Newsletter",
+            "D": "Attachment"
+          },
+          "answer": "A"
+        },
+        {
+          "id": 106,
+          "question": "Password managers help by:",
+          "options": {
+            "A": "Sharing passwords",
+            "B": "Creating and storing strong passwords",
+            "C": "Deleting data",
+            "D": "Blocking apps"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 107,
+          "question": "Logging out from shared devices prevents:",
+          "options": {
+            "A": "Battery drain",
+            "B": "Account misuse",
+            "C": "Updates",
+            "D": "Ads"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 108,
+          "question": "Auto-lock timing should be:",
+          "options": {
+            "A": "Very long",
+            "B": "Short for security",
+            "C": "Disabled",
+            "D": "Manual"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 109,
+          "question": "Email links should be checked by:",
+          "options": {
+            "A": "Clicking",
+            "B": "Hovering to see real URL",
+            "C": "Forwarding",
+            "D": "Saving"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 110,
+          "question": "Cyber hygiene is effective when practiced:",
+          "options": {
+            "A": "Once",
+            "B": "Daily",
+            "C": "Rarely",
+            "D": "Never"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 111,
+          "question": "Strong passwords should be:",
+          "options": {
+            "A": "Same everywhere",
+            "B": "Unique for each service",
+            "C": "Easy to remember only",
+            "D": "Shared"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 112,
+          "question": "Two-factor authentication protects against:",
+          "options": {
+            "A": "Battery drain",
+            "B": "Password compromise",
+            "C": "Slow internet",
+            "D": "Ads"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 113,
+          "question": "Public computers should be used for banking:",
+          "options": {
+            "A": "Always",
+            "B": "Never",
+            "C": "Sometimes",
+            "D": "Only at night"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 114,
+          "question": "Software updates should be from:",
+          "options": {
+            "A": "Any source",
+            "B": "Official sources only",
+            "C": "Email links",
+            "D": "Messages"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 115,
+          "question": "App permissions should be:",
+          "options": {
+            "A": "Ignored",
+            "B": "Reviewed carefully",
+            "C": "Allowed all",
+            "D": "Skipped"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 116,
+          "question": "Backups should be taken:",
+          "options": {
+            "A": "Once",
+            "B": "Regularly",
+            "C": "Never",
+            "D": "Only after loss"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 117,
+          "question": "Antivirus software helps to:",
+          "options": {
+            "A": "Create virus",
+            "B": "Detect and remove malware",
+            "C": "Slow device",
+            "D": "Hide files"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 118,
+          "question": "Unknown email attachments should be:",
+          "options": {
+            "A": "Opened",
+            "B": "Verified or deleted",
+            "C": "Forwarded",
+            "D": "Saved"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 119,
+          "question": "Secure devices should have:",
+          "options": {
+            "A": "No lock",
+            "B": "Screen lock enabled",
+            "C": "Always open apps",
+            "D": "No updates"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 120,
+          "question": "Cyber hygiene is important for:",
+          "options": {
+            "A": "Tech experts only",
+            "B": "Everyone using digital services",
+            "C": "Children only",
+            "D": "Banks only"
+          },
+          "answer": "B"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Logical & Scenario-Based",
+      "questions": [
+        {
+          "id": 121,
+          "question": "A call threatens arrest for online crime. First response?",
+          "options": {
+            "A": "Panic",
+            "B": "Disconnect and verify independently",
+            "C": "Pay money",
+            "D": "Share details"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 122,
+          "question": "Unauthorized debit noticed. First action?",
+          "options": {
+            "A": "Post online",
+            "B": "Call 1930",
+            "C": "Change phone",
+            "D": "Wait"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 123,
+          "question": "Friend asks to use your account temporarily. You should:",
+          "options": {
+            "A": "Help",
+            "B": "Refuse",
+            "C": "Ask amount",
+            "D": "Ignore"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 124,
+          "question": "Child receives unknown gaming friend request. Correct action:",
+          "options": {
+            "A": "Accept",
+            "B": "Inform parent and block",
+            "C": "Chat",
+            "D": "Share photos"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 125,
+          "question": "WhatsApp OTP received without request means:",
+          "options": {
+            "A": "App update",
+            "B": "Someone trying to access your account",
+            "C": "Network issue",
+            "D": "Cashback"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 126,
+          "question": "After scam, fastest recovery depends on:",
+          "options": {
+            "A": "Amount lost",
+            "B": "Speed of reporting",
+            "C": "Phone model",
+            "D": "Bank branch"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 127,
+          "question": "If you clicked a phishing link, immediate step is to:",
+          "options": {
+            "A": "Ignore",
+            "B": "Change passwords and report",
+            "C": "Sleep",
+            "D": "Share"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 128,
+          "question": "Receiving unknown QR code to scan should be:",
+          "options": {
+            "A": "Scanned",
+            "B": "Ignored",
+            "C": "Forwarded",
+            "D": "Saved"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 129,
+          "question": "Sextortion threats should be handled by:",
+          "options": {
+            "A": "Paying money",
+            "B": "Blocking and reporting",
+            "C": "Negotiating",
+            "D": "Ignoring completely"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 130,
+          "question": "Money mule requests should be:",
+          "options": {
+            "A": "Accepted",
+            "B": "Refused immediately",
+            "C": "Delayed",
+            "D": "Negotiated"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 131,
+          "question": "Preserving evidence means:",
+          "options": {
+            "A": "Deleting chats",
+            "B": "Saving screenshots and logs",
+            "C": "Editing files",
+            "D": "Sharing publicly"
+          },
+          "answer": "B"
+        },
+        {
+          "id": 132,
+          "question": "Best overall cyber defence is:",
+          "options": {
+            "A": "Apps only",
+            "B": "Awareness + timely action",
+            "C": "Police only",
+            "D": "Luck"
+          },
+          "answer": "B"
+        }
+      ]
+    }
+  ]
+}

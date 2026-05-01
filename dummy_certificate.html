@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dummy Certificate Preview</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50">
+
+    <div class="w-full max-w-7xl flex flex-col lg:flex-row gap-8 items-start">
+
+        <!-- Preview Section -->
+        <div
+            class="flex-1 w-full bg-white p-4 md:p-8 rounded-2xl shadow-xl flex flex-col items-center gap-6 order-2 lg:order-1">
+            <div class="text-center">
+                <h1 class="text-2xl font-black text-slate-800 mb-2">Certificate Preview</h1>
+                <p class="text-slate-500">Live preview of the generated certificate asset.</p>
+            </div>
+
+            <div class="relative w-full shadow-2xl overflow-hidden rounded-lg bg-slate-200">
+                <canvas id="certCanvas" width="1200" height="850" class="w-full h-auto"></canvas>
+            </div>
+
+            <div class="flex gap-4 mt-4">
+                <button onclick="window.location.reload()"
+                    class="px-6 py-2 rounded-lg font-bold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors">
+                    Regenerate ID
+                </button>
+                <button onclick="downloadPDF()"
+                    class="bg-[#135bec] text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-blue-500/30 hover:scale-105 transition-transform flex items-center gap-2">
+                    <span class="material-symbols-outlined">download</span> Download PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Metadata Sidebar -->
+        <div class="w-full lg:w-96 shrink-0 order-1 lg:order-2">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 sticky top-4">
+                <h2 class="font-bold text-xl text-slate-900 mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">data_object</span> Generated Info
+                </h2>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Certificate ID</label>
+                        <div class="font-mono text-lg font-bold text-slate-800 bg-slate-50 p-3 rounded border border-slate-200 select-all"
+                            id="disp-id">...</div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Student Details</label>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 space-y-2">
+                            <div>
+                                <span class="text-xs text-slate-400 block">Name</span>
+                                <span class="font-bold text-slate-700" id="disp-name">...</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-400 block">Email</span>
+                                <span class="text-sm font-bold text-slate-700 break-all" id="disp-email">...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Exam Metadata</label>
+                        <div class="bg-slate-50 p-3 rounded border border-slate-200 space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-slate-600">Score</span>
+                                <span class="font-bold text-green-600" id="disp-score">...</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-slate-600">Issued On</span>
+                                <span class="font-bold text-slate-700 text-sm" id="disp-date">...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">File Info</label>
+                        <div class="text-xs text-slate-500 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">description</span>
+                            <span id="disp-filename">certificate.pdf</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generated Unique ID
+        const certID = Date.now().toString(36).toUpperCase();
+
+        // Dummy Data
+        const dummyData = {
+            examTitle: "Certified Cyber Sentinel Assessment",
+            score: 95,
+            date: new Date().toISOString(),
+            studentName: "John Doe",
+            studentEmail: "john.doe@university.edu"
+        };
+
+        // Update UI Side Panel
+        document.getElementById('disp-id').innerText = certID;
+        document.getElementById('disp-name').innerText = dummyData.studentName;
+        document.getElementById('disp-email').innerText = dummyData.studentEmail;
+        document.getElementById('disp-score').innerText = dummyData.score + '%';
+        document.getElementById('disp-date').innerText = new Date(dummyData.date).toLocaleDateString();
+
+        const safeName = dummyData.studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        document.getElementById('disp-filename').innerText = `${safeName}_Certificate.pdf`;
+
+        // Helper to load image
+        const loadImage = (src) => new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = src;
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error(`Failed to load ${src}`));
+        });
+
+        // Helper for text wrapping
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    ctx.fillText(line, x, currentY);
+                    line = words[n] + ' ';
+                    currentY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, currentY);
+            return currentY + lineHeight; // Return next Y
+        }
+
+        async function drawCertificate() {
+            const canvas = document.getElementById('certCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 1200, 850);
+
+            // 2. Ornamental Border
+            ctx.lineWidth = 20;
+            ctx.strokeStyle = '#1e293b';
+            ctx.strokeRect(20, 20, 1160, 810);
+
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#d4af37';
+            ctx.strokeRect(45, 45, 1110, 760);
+
+            // Corner Accents
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(15, 15, 60, 20); ctx.fillRect(15, 15, 20, 60);
+            ctx.fillRect(1125, 15, 60, 20); ctx.fillRect(1165, 15, 20, 60);
+            ctx.fillRect(15, 815, 60, 20); ctx.fillRect(15, 775, 20, 60);
+            ctx.fillRect(1125, 815, 60, 20); ctx.fillRect(1165, 775, 20, 60);
+
+            try {
+                // Load Images
+                // We use allSettled for signatures so one missing doesn't break the whole cert
+                const [logo1, logo2] = await Promise.all([
+                    loadImage('NSCH Logo (1).png'),
+                    loadImage('campushub.jpg')
+                ]);
+
+                // 3. Logos (Header) - Centered & Closer
+                // Center point is 600. 
+                // We want two logos of size 100x100 with 20px gap.
+                // Total width = 100 + 20 + 100 = 220.
+                // Start X = 600 - (220/2) = 490.
+
+                ctx.drawImage(logo1, 490, 60, 100, 100);
+                // Draw second logo
+                ctx.drawImage(logo2, 610, 60, 100, 100);
+
+                // Watermark (Center)
+                ctx.save();
+                ctx.globalAlpha = 0.05;
+                ctx.drawImage(logo1, 300, 125, 600, 600);
+                ctx.restore();
+
+                // 4. Header Text (Shifted down slightly)
+                ctx.textAlign = 'center';
+                ctx.font = '900 60px "Lexend", sans-serif';
+                ctx.fillStyle = '#1e293b';
+                ctx.fillText('CERTIFICATE', 600, 220);
+
+                ctx.font = '500 24px "Lexend", sans-serif';
+                ctx.fillStyle = '#d4af37';
+                ctx.fillText('OF ACHIEVEMENT', 600, 260);
+
+                // 5. Presenting Line
+                ctx.font = 'italic 20px "Lexend", serif';
+                ctx.fillStyle = '#64748b';
+                ctx.fillText('This certificate is proudly presented to', 600, 320);
+
+                // 6. Candidate Name
+                ctx.font = 'bold 50px "Lexend", sans-serif';
+                ctx.fillStyle = '#0f172a';
+                ctx.fillText(dummyData.studentName, 600, 390);
+
+                // Underline
+                ctx.beginPath();
+                ctx.moveTo(300, 410);
+                ctx.lineTo(900, 410);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.stroke();
+
+                // 7. Body Text (Paragraphs)
+                ctx.font = '400 18px "Lexend", sans-serif';
+                ctx.fillStyle = '#334155';
+                const bodyText1 = "for successfully clearing the Safe Netizen assessment with a qualifying score. This recognition is awarded under the Nitin Shrimali’s Cyber Hygiene (NSCH) initiative, validating the candidate's proficiency in digital defense, scam prevention, and secure online conduct.";
+
+                const bodyText2 = "The holder is officially recognized as a proactive contributor to a safer and more secure digital ecosystem.";
+
+                let cursorY = 460;
+                cursorY = wrapText(ctx, bodyText1, 600, cursorY, 800, 30);
+
+                cursorY += 20; // Paragraph Break
+                wrapText(ctx, bodyText2, 600, cursorY, 800, 30);
+
+                // 8. Footer Metadata & Signatures
+                const attemptDate = new Date(dummyData.date).toLocaleDateString('en-GB');
+
+                // Metadata (Left aligned usually, but let's keep it subtle or integrated)
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 14px "Lexend", sans-serif';
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText(`Date: ${attemptDate}   •   ID: ${certID}`, 600, 800);
+
+                // Signatures
+                const sigY = 660;
+
+                // Nithin Sign (Left Center)
+                try {
+                    const sigNitin = await loadImage('NitinSign.png');
+                    ctx.drawImage(sigNitin, 350, sigY, 150, 60);
+                } catch (e) {
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.font = 'italic 12px sans-serif';
+                    ctx.fillText('(Nitin Sign Missing)', 425, sigY + 30);
+                }
+
+                // Vinayak Sign (Right Center)
+                try {
+                    const sigVinayak = await loadImage('VinayakSign.png');
+                    ctx.drawImage(sigVinayak, 700, sigY, 150, 60);
+                } catch (e) {
+                    // Placeholder text if missing
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.font = 'italic 12px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('(Not Yet Added)', 775, sigY + 30);
+                }
+
+                // Text Labels for Signatures
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 16px "Lexend", sans-serif';
+                ctx.textAlign = 'center';
+
+                ctx.fillText("Nitin Shrimali", 425, sigY + 80);
+                ctx.font = '12px "Lexend", sans-serif';
+                ctx.fillStyle = '#64748b';
+                ctx.fillText("Founder, NSCH", 425, sigY + 95);
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 16px "Lexend", sans-serif';
+                ctx.fillText("Vinayak Pandya", 775, sigY + 80);
+                ctx.font = '12px "Lexend", sans-serif';
+                ctx.fillStyle = '#64748b';
+                ctx.fillText("Founder, CAMPUSHUB", 775, sigY + 95);
+
+            } catch (err) {
+                console.error(err);
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.fillStyle = 'red';
+                ctx.fillText('Error loading logos. Please ensure "campushub.jpg" exists.', 600, 425);
+            }
+        }
+
+        async function downloadPDF() {
+            const canvas = document.getElementById('certCanvas');
+            const { jsPDF } = window.jspdf;
+
+            const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [1200, 850] });
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            pdf.addImage(imgData, 'PNG', 0, 0, 1200, 850);
+
+            const safeName = dummyData.studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            pdf.save(`${safeName}_Certificate.pdf`);
+        }
+
+        drawCertificate();
+    </script>
+</body>
+
+</html>
