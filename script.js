@@ -712,6 +712,15 @@ function handleLoginSuccess(user) {
 
     studentExamState.studentName = fullName;
     studentExamState.userEmail = user.email;
+
+    // Show admin panel link for admin users
+    const adminEmails = ['campushub13@gmail.com', 'nsch1930@gmail.com'];
+    const adminNav = document.getElementById('nav-admin-panel');
+    if (adminNav && adminEmails.includes(user.email)) {
+        adminNav.classList.remove('hidden');
+        adminNav.classList.add('flex');
+    }
+
     renderStudentExams();
 }
 
