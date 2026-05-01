@@ -918,6 +918,11 @@ async function initAdminDashboard() {
                 document.getElementById('create-exam-modal').classList.add('hidden');
                 e.target.reset();
 
+                // For manual entry, auto-open the question editor
+                if (!usePreset) {
+                    window.selectExamForEdit(newExamId);
+                }
+
             } catch (err) {
                 console.error('createExam', err);
                 alert('Error creating exam: ' + err.message);
