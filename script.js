@@ -748,35 +748,278 @@ async function initAdminDashboard() {
         }
     });
 
-    // Sample Download
-    window.downloadSampleJSON = () => {
-        const sample = {
-            "easy": [
-                { "question": "Sample Question 1?", "options": ["Option A", "Option B", "Option C", "Option D"], "answer": "Option A" }
-            ],
-            "medium": [],
-            "hard": []
-        };
-        const blob = new Blob([JSON.stringify(sample, null, 2)], { type: "application/json" });
+    // Sample Template Download
+    window.downloadSampleTemplate = () => {
+        const template = `Q: What is phishing?\nA) Online shopping\nB) Fake messages to steal data\nC) Antivirus alert\nD) Government notice\nAnswer: B\n\nQ: What does HTTPS stand for?\nA) Hyper Text Transfer Protocol Secure\nB) High Tech Programming System\nC) Home Transfer Protocol System\nD) None of the above\nAnswer: A\n`;
+        const blob = new Blob([template], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = "sample_question_set.json";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        a.href = url; a.download = "sample_question_bank.txt";
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
     };
 
+    // ---- FILE PARSING ENGINE ----
+    function parseQuestionBankText(text) {
+        const questions = [];
+        const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+        let current = null;
+        let inAnswerKey = false;
+        const answerKeyMap = {};
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            // Detect answer key section header
+            if (/^answer\s*key/i.test(line) || /^answers?\s*$/i.test(line)) {
+                if (current && current.question_text && current.option_a) questions.push(current);
+                current = null;
+                inAnswerKey = true;
+                continue;
+            }
+
+            // In answer key section: parse "1. B - 366" or "1. B" or "1) B"
+            if (inAnswerKey) {
+                const akMatch = line.match(/^(\d+)\s*[.)]\s*([A-Da-d])/);
+                if (akMatch) {
+                    answerKeyMap[parseInt(akMatch[1])] = akMatch[2].toUpperCase();
+                }
+                continue;
+            }
+
+            // Match option FIRST (before question) to avoid "A. text" matching as question
+            const optMatch = line.match(/^([A-Da-d])\s*[.)]\s*(.*)/);
+            if (optMatch && current) {
+                const letter = optMatch[1].toUpperCase();
+                const val = optMatch[2].trim();
+                if (letter === 'A') current.option_a = val;
+                else if (letter === 'B') current.option_b = val;
+                else if (letter === 'C') current.option_c = val;
+                else if (letter === 'D') current.option_d = val;
+                continue;
+            }
+
+            // Match inline answer: "Answer: B"
+            const ansMatch = line.match(/^(?:Answer|Correct|Ans)\s*[:.]\s*([A-Da-d])/i);
+            if (ansMatch && current) {
+                current.correct_option = ansMatch[1].toUpperCase();
+                continue;
+            }
+
+            // Match question line: "1. question text" or "Q1. text"
+            const qMatch = line.match(/^(?:Q\s*\.?\s*)?(\d+)\s*[.):\-]\s*(.+)/i);
+            const qMatch2 = line.match(/^Q\s*[:.]\s*(.+)/i);
+            const qText = qMatch ? qMatch[2].trim() : (qMatch2 ? qMatch2[1].trim() : null);
+
+            if (qText && qText.length > 5 && !/^[A-Da-d]\s*[-.]/i.test(qText)) {
+                if (current && current.question_text && current.option_a) questions.push(current);
+                current = { question_text: qText, option_a: '', option_b: '', option_c: '', option_d: '', correct_option: 'A', _approved: false };
+                continue;
+            }
+        }
+        if (current && current.question_text && current.option_a) questions.push(current);
+
+        // Apply answer key if found
+        Object.keys(answerKeyMap).forEach(num => {
+            const idx = parseInt(num) - 1;
+            if (idx >= 0 && idx < questions.length) {
+                questions[idx].correct_option = answerKeyMap[num];
+            }
+        });
+
+        console.log('[PARSER] Parsed', questions.length, 'questions, answer key entries:', Object.keys(answerKeyMap).length);
+        return questions;
+    }
+
+    async function parsePDFFile(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            // Group items by Y position to reconstruct lines
+            const itemsByY = {};
+            content.items.forEach(item => {
+                const y = Math.round(item.transform[5]);
+                if (!itemsByY[y]) itemsByY[y] = [];
+                itemsByY[y].push(item);
+            });
+            const sortedYs = Object.keys(itemsByY).sort((a, b) => b - a);
+            for (const y of sortedYs) {
+                const lineItems = itemsByY[y].sort((a, b) => a.transform[4] - b.transform[4]);
+                fullText += lineItems.map(item => item.str).join(' ') + '\n';
+            }
+        }
+        return parseQuestionBankText(fullText);
+    }
+
+    async function parseDOCXFile(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        return parseQuestionBankText(result.value);
+    }
+
+    async function parseImportFile(file) {
+        const name = file.name.toLowerCase();
+        if (name.endsWith('.pdf')) return await parsePDFFile(file);
+        if (name.endsWith('.docx') || name.endsWith('.doc')) return await parseDOCXFile(file);
+        if (name.endsWith('.json')) {
+            const text = await file.text();
+            const json = JSON.parse(text);
+            // Handle legacy JSON format
+            let allQs = [];
+            const mapQ = (q) => {
+                let optA, optB, optC, optD, correctChar;
+                if (Array.isArray(q.options)) {
+                    optA = q.options[0]; optB = q.options[1]; optC = q.options[2]; optD = q.options[3];
+                    const idx = q.options.findIndex(o => o === q.answer);
+                    correctChar = ['A','B','C','D'][idx !== -1 ? idx : 0];
+                } else {
+                    optA = q.options?.A || ''; optB = q.options?.B || ''; optC = q.options?.C || ''; optD = q.options?.D || '';
+                    correctChar = (q.answer || 'A').toUpperCase();
+                }
+                return { question_text: q.question, option_a: optA, option_b: optB, option_c: optC, option_d: optD, correct_option: correctChar, _approved: false };
+            };
+            if (json.sections) json.sections.forEach(s => (s.questions||[]).forEach(q => allQs.push(mapQ(q))));
+            else ['easy','medium','hard'].forEach(d => (json[d]||[]).forEach(q => allQs.push(mapQ(q))));
+            if (allQs.length === 0 && Array.isArray(json)) json.forEach(q => allQs.push(mapQ(q)));
+            return allQs;
+        }
+        // Plain text
+        const text = await file.text();
+        return parseQuestionBankText(text);
+    }
+
+    // ---- IMPORT REVIEW STATE ----
+    let importReviewState = { questions: [], selectedIndex: -1, examData: null };
+
+    function openImportReview(questions, examData) {
+        importReviewState = { questions, selectedIndex: -1, examData };
+        document.getElementById('import-review-section').classList.remove('hidden');
+        document.getElementById('create-exam-modal').classList.add('hidden');
+        renderReviewList();
+        document.getElementById('review-empty-state').classList.remove('hidden');
+        document.getElementById('review-question-form').classList.add('hidden');
+    }
+
+    window.cancelImportReview = () => {
+        if (!confirm('Discard all imported questions?')) return;
+        document.getElementById('import-review-section').classList.add('hidden');
+        importReviewState = { questions: [], selectedIndex: -1, examData: null };
+    };
+
+    function renderReviewList() {
+        const list = document.getElementById('review-questions-list');
+        const qs = importReviewState.questions;
+        const approved = qs.filter(q => q._approved).length;
+        document.getElementById('review-q-count').textContent = qs.length;
+        document.getElementById('review-approved-count').textContent = approved;
+        document.getElementById('review-total-count').textContent = qs.length;
+        const btn = document.getElementById('btn-finalize-import');
+        btn.disabled = approved < qs.length || qs.length === 0;
+
+        list.innerHTML = qs.map((q, i) => `
+            <button onclick="selectReviewQuestion(${i})" class="w-full text-left p-3 rounded-lg border transition-all text-sm ${importReviewState.selectedIndex === i ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}">
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${q._approved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${q._approved ? '✓' : i+1}</span>
+                    <span class="truncate font-bold text-xs">${q.question_text.substring(0, 60)}${q.question_text.length > 60 ? '...' : ''}</span>
+                </div>
+            </button>
+        `).join('');
+    }
+
+    window.selectReviewQuestion = (idx) => {
+        importReviewState.selectedIndex = idx;
+        const q = importReviewState.questions[idx];
+        document.getElementById('review-empty-state').classList.add('hidden');
+        document.getElementById('review-question-form').classList.remove('hidden');
+        document.getElementById('review-q-label').textContent = `Question ${idx + 1}`;
+        document.getElementById('review-q-status').textContent = q._approved ? 'APPROVED' : 'PENDING';
+        document.getElementById('review-q-status').className = q._approved
+            ? 'text-[10px] font-bold px-2 py-1 rounded-full bg-green-100 text-green-700'
+            : 'text-[10px] font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-700';
+        document.getElementById('review-q-text').value = q.question_text;
+        document.getElementById('review-op-a').value = q.option_a;
+        document.getElementById('review-op-b').value = q.option_b;
+        document.getElementById('review-op-c').value = q.option_c;
+        document.getElementById('review-op-d').value = q.option_d;
+        document.getElementById('review-correct-op').value = q.correct_option;
+        renderReviewList();
+    };
+
+    window.saveAndApproveQuestion = () => {
+        const idx = importReviewState.selectedIndex;
+        if (idx < 0) return;
+        const q = importReviewState.questions[idx];
+        q.question_text = document.getElementById('review-q-text').value.trim();
+        q.option_a = document.getElementById('review-op-a').value.trim();
+        q.option_b = document.getElementById('review-op-b').value.trim();
+        q.option_c = document.getElementById('review-op-c').value.trim();
+        q.option_d = document.getElementById('review-op-d').value.trim();
+        q.correct_option = document.getElementById('review-correct-op').value;
+        q._approved = true;
+        // Move to next unapproved or stay
+        const nextIdx = importReviewState.questions.findIndex((q2, i) => i > idx && !q2._approved);
+        if (nextIdx !== -1) window.selectReviewQuestion(nextIdx);
+        else renderReviewList();
+    };
+
+    window.deleteReviewQuestion = () => {
+        const idx = importReviewState.selectedIndex;
+        if (idx < 0) return;
+        importReviewState.questions.splice(idx, 1);
+        importReviewState.selectedIndex = -1;
+        document.getElementById('review-empty-state').classList.remove('hidden');
+        document.getElementById('review-question-form').classList.add('hidden');
+        renderReviewList();
+    };
+
+    window.approveAllQuestions = () => {
+        importReviewState.questions.forEach(q => q._approved = true);
+        renderReviewList();
+        if (importReviewState.selectedIndex >= 0) window.selectReviewQuestion(importReviewState.selectedIndex);
+    };
+
+    window.finalizeImport = async () => {
+        const btn = document.getElementById('btn-finalize-import');
+        btn.disabled = true; btn.innerHTML = '<span class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span> Creating...';
+        try {
+            const { examData, questions } = importReviewState;
+            const docRef = await firebaseDb.collection('exams').add({ ...examData, created_at: new Date().toISOString() });
+            const newExamId = docRef.id;
+            const batch = firebaseDb.batch();
+            questions.forEach(q => {
+                const qRef = firebaseDb.collection('questions').doc();
+                batch.set(qRef, {
+                    exam_id: newExamId, question_text: q.question_text,
+                    option_a: q.option_a, option_b: q.option_b, option_c: q.option_c, option_d: q.option_d,
+                    correct_option: q.correct_option, created_at: new Date().toISOString()
+                });
+            });
+            await batch.commit();
+            document.getElementById('import-review-section').classList.add('hidden');
+            importReviewState = { questions: [], selectedIndex: -1, examData: null };
+            await DataService.refreshUI();
+        } catch (err) {
+            console.error('finalizeImport', err);
+            alert('Error creating exam: ' + err.message);
+        } finally {
+            btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-sm">check_circle</span> Create Exam';
+        }
+    };
+
+    // ---- CREATE EXAM FORM ----
     const createForm = document.getElementById('create-exam-form');
     if (createForm) {
         createForm.onsubmit = async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerText = "Creating..."; btn.disabled = true;
+            btn.innerText = "Processing..."; btn.disabled = true;
 
             try {
-                // 1. Create Exam Record
                 const examData = {
                     title: document.getElementById('exam-title').value,
                     course_code: document.getElementById('course-code').value,
@@ -786,146 +1029,46 @@ async function initAdminDashboard() {
                     status: 'Upcoming'
                 };
 
-                // We need the new ID - Firebase returns it from .add()
-                const docRef = await firebaseDb.collection('exams').add({
-                    ...examData,
-                    created_at: new Date().toISOString()
-                });
-
-                const newExamId = docRef.id;
-
-                // 2. Import Questions if Preset selected
                 const usePreset = document.querySelector('input[name="use_preset"]:checked').value === 'yes';
 
                 if (usePreset) {
-                    btn.innerText = "Importing Questions...";
-
-                    const counts = {
-                        easy: document.getElementById('preset-easy').checked ? parseInt(document.getElementById('count-easy').value || 0) : 0,
-                        medium: document.getElementById('preset-medium').checked ? parseInt(document.getElementById('count-medium').value || 0) : 0,
-                        hard: document.getElementById('preset-hard').checked ? parseInt(document.getElementById('count-hard').value || 0) : 0
-                    };
-
-                    if (counts.easy > 0 || counts.medium > 0 || counts.hard > 0) {
-                        try {
-                            // DETERMINE SOURCE: File or Default
-                            let questionSet;
-                            const fileInput = document.getElementById('custom-json-file');
-
-                            if (fileInput && fileInput.files.length > 0) {
-                                const file = fileInput.files[0];
-                                const text = await file.text();
-                                questionSet = JSON.parse(text);
-                            } else {
-                                const response = await fetch('set.json');
-                                if (!response.ok) throw new Error("Failed to load default set");
-                                questionSet = await response.json();
-                            }
-
-                            let questionsToAdd = [];
-
-                            // Helper to pick random
-                            const pickRandom = (arr, n) => {
-                                if (!arr || arr.length === 0) return [];
-                                const shuffled = [...arr].sort(() => 0.5 - Math.random());
-                                return shuffled.slice(0, n);
-                            };
-
-                            // Normalize question set to { easy, medium, hard }
-                            // Support both formats:
-                            //   Format 1 (sections): { sections: [{ questions: [...] }] }
-                            //   Format 2 (direct):   { easy: [...], medium: [...], hard: [...] }
-                            let normalizedSet = { easy: [], medium: [], hard: [] };
-
-                            if (questionSet.sections && Array.isArray(questionSet.sections)) {
-                                // Sections-based format: distribute sections into difficulty buckets
-                                const allSections = questionSet.sections;
-                                const totalSections = allSections.length;
-                                const easyEnd = Math.ceil(totalSections / 3);
-                                const medEnd = Math.ceil((totalSections * 2) / 3);
-
-                                allSections.forEach((section, idx) => {
-                                    const qs = section.questions || [];
-                                    if (idx < easyEnd) normalizedSet.easy.push(...qs);
-                                    else if (idx < medEnd) normalizedSet.medium.push(...qs);
-                                    else normalizedSet.hard.push(...qs);
-                                });
-                            } else {
-                                // Direct easy/medium/hard format
-                                normalizedSet.easy = questionSet.easy || [];
-                                normalizedSet.medium = questionSet.medium || [];
-                                normalizedSet.hard = questionSet.hard || [];
-                            }
-
-                            const mapToDB = (qList, count) => {
-                                const picked = pickRandom(qList, count);
-                                picked.forEach(q => {
-                                    let optA, optB, optC, optD, correctChar;
-
-                                    if (Array.isArray(q.options)) {
-                                        // Array format: ["opt1", "opt2", "opt3", "opt4"]
-                                        optA = q.options[0];
-                                        optB = q.options[1];
-                                        optC = q.options[2];
-                                        optD = q.options[3];
-                                        const correctIdx = q.options.findIndex(opt => opt === q.answer);
-                                        correctChar = ['A', 'B', 'C', 'D'][correctIdx !== -1 ? correctIdx : 0];
-                                    } else {
-                                        // Object format: { "A": "opt1", "B": "opt2", ... }
-                                        optA = q.options.A || q.options.a || '';
-                                        optB = q.options.B || q.options.b || '';
-                                        optC = q.options.C || q.options.c || '';
-                                        optD = q.options.D || q.options.d || '';
-                                        // Answer is already a letter like "A", "B", "C", "D"
-                                        correctChar = (q.answer || 'A').toUpperCase();
-                                    }
-
-                                    questionsToAdd.push({
-                                        exam_id: newExamId,
-                                        question_text: q.question,
-                                        option_a: optA,
-                                        option_b: optB,
-                                        option_c: optC,
-                                        option_d: optD,
-                                        correct_option: correctChar,
-                                        created_at: new Date().toISOString()
-                                    });
-                                });
-                            };
-
-                            if (counts.easy > 0) mapToDB(normalizedSet.easy, counts.easy);
-                            if (counts.medium > 0) mapToDB(normalizedSet.medium, counts.medium);
-                            if (counts.hard > 0) mapToDB(normalizedSet.hard, counts.hard);
-
-                            if (questionsToAdd.length > 0) {
-                                // Firestore batch write (max 500 per batch)
-                                const batch = firebaseDb.batch();
-                                questionsToAdd.forEach(qData => {
-                                    const qRef = firebaseDb.collection('questions').doc();
-                                    batch.set(qRef, qData);
-                                });
-                                await batch.commit();
-                            }
-
-                        } catch (err) {
-                            console.error("Import Error", err);
-                            alert("Exam created, but failed to import questions: " + err.message);
+                    const fileInput = document.getElementById('import-question-file');
+                    if (!fileInput || fileInput.files.length === 0) {
+                        alert('Please select a file to upload.');
+                        btn.innerText = "Create Exam"; btn.disabled = false;
+                        return;
+                    }
+                    btn.innerText = "Parsing File...";
+                    try {
+                        console.log('[IMPORT] Parsing file:', fileInput.files[0].name, fileInput.files[0].size, 'bytes');
+                        const questions = await parseImportFile(fileInput.files[0]);
+                        console.log('[IMPORT] Parsed questions:', questions.length);
+                        if (!questions || questions.length === 0) {
+                            alert('No questions could be parsed from the file. Please check the format.');
+                            btn.innerText = "Create Exam"; btn.disabled = false;
+                            return;
                         }
+                        btn.innerText = "Create Exam"; btn.disabled = false;
+                        openImportReview(questions, examData);
+                        return;
+                    } catch (parseErr) {
+                        console.error('[IMPORT] Parse error:', parseErr);
+                        alert('Failed to parse file: ' + parseErr.message);
+                        btn.innerText = "Create Exam"; btn.disabled = false;
+                        return;
                     }
                 }
 
+                // Manual entry: create exam directly
+                const docRef = await firebaseDb.collection('exams').add({ ...examData, created_at: new Date().toISOString() });
+                const newExamId = docRef.id;
                 await DataService.refreshUI();
                 document.getElementById('create-exam-modal').classList.add('hidden');
                 e.target.reset();
-
-                // For manual entry, auto-open the question editor
-                if (!usePreset) {
-                    window.selectExamForEdit(newExamId);
-                }
-
+                window.selectExamForEdit(newExamId);
             } catch (err) {
                 console.error('createExam', err);
-                alert('Error creating exam: ' + err.message);
+                alert('Error: ' + err.message);
             } finally {
                 btn.innerText = "Create Exam"; btn.disabled = false;
             }
@@ -957,14 +1100,24 @@ async function initAdminDashboard() {
     }
 }
 
-// ADMIN NAVIGATION & STUDENTS SECTION
 window.switchAdminTab = (tab) => {
-    document.getElementById('section-exams').classList.toggle('hidden', tab !== 'exams');
-    document.getElementById('section-students').classList.toggle('hidden', tab !== 'students');
-    document.getElementById('nav-exams').className = tab === 'exams' ? 'px-4 py-1.5 rounded-md text-sm font-bold bg-white dark:bg-slate-700 shadow-sm transition-all text-primary' : 'px-4 py-1.5 rounded-md text-sm font-bold text-slate-500 hover:text-slate-700 transition-all';
-    document.getElementById('nav-students').className = tab === 'students' ? 'px-4 py-1.5 rounded-md text-sm font-bold bg-white dark:bg-slate-700 shadow-sm transition-all text-primary' : 'px-4 py-1.5 rounded-md text-sm font-bold text-slate-500 hover:text-slate-700 transition-all';
+    const activeBtn = 'px-4 py-1.5 rounded-md text-sm font-bold bg-white dark:bg-slate-700 shadow-sm transition-all text-primary';
+    const inactiveBtn = 'px-4 py-1.5 rounded-md text-sm font-bold text-slate-500 hover:text-slate-700 transition-all';
+    const activeMobile = 'flex-1 py-3 text-xs font-bold text-primary flex flex-col items-center gap-1 transition-colors border-t-2 border-primary';
+    const inactiveMobile = 'flex-1 py-3 text-xs font-bold text-slate-500 flex flex-col items-center gap-1 transition-colors border-t-2 border-transparent';
+
+    ['exams', 'students', 'system'].forEach(t => {
+        const section = document.getElementById('section-' + t);
+        if (section) section.classList.toggle('hidden', tab !== t);
+        const nav = document.getElementById('nav-' + t);
+        if (nav) nav.className = tab === t ? activeBtn : inactiveBtn;
+        const mNav = document.getElementById('mobile-nav-' + t);
+        if (mNav) mNav.className = tab === t ? activeMobile : inactiveMobile;
+    });
+
     if (tab === 'students') renderStudentManagement();
     if (tab === 'exams') renderAdminExams();
+    if (tab === 'system') runSystemChecks();
 };
 
 async function renderStudentManagement() {
@@ -1860,6 +2013,128 @@ window.toggleSidebar = () => {
 
 
 // -------------------------------------------------------------------------
+// SYSTEM STATUS CONTROL ROOM
+// -------------------------------------------------------------------------
+let systemCheckInterval = null;
+
+function updateCheckCard(id, status, value) {
+    const card = document.getElementById(id);
+    if (!card) return;
+    const dot = card.querySelector('.w-3');
+    const valEl = card.querySelectorAll('p')[1];
+    if (dot) {
+        dot.classList.remove('animate-pulse', 'bg-slate-300', 'bg-green-500', 'bg-red-500', 'bg-amber-500');
+        if (status === 'ok') dot.classList.add('bg-green-500');
+        else if (status === 'warn') dot.classList.add('bg-amber-500');
+        else dot.classList.add('bg-red-500');
+    }
+    if (valEl) valEl.textContent = value;
+}
+
+window.runSystemChecks = async () => {
+    const icon = document.getElementById('system-refresh-icon');
+    if (icon) icon.classList.add('animate-spin');
+    let allOk = true;
+    let hasWarn = false;
+
+    // 1. Firebase Auth
+    try {
+        const auth = firebase.auth();
+        if (auth) updateCheckCard('check-firebase-auth', 'ok', 'Operational');
+        else throw new Error();
+    } catch { updateCheckCard('check-firebase-auth', 'fail', 'Unavailable'); allOk = false; }
+
+    // 2. Firestore DB
+    try {
+        const start = performance.now();
+        await firebaseDb.collection('exams').limit(1).get();
+        const latency = Math.round(performance.now() - start);
+        updateCheckCard('check-firestore', 'ok', 'Connected');
+        const latStatus = latency < 200 ? 'ok' : latency < 500 ? 'warn' : 'fail';
+        updateCheckCard('check-latency', latStatus, latency + 'ms');
+        if (latStatus === 'warn') hasWarn = true;
+        if (latStatus === 'fail') allOk = false;
+    } catch { updateCheckCard('check-firestore', 'fail', 'Unreachable'); updateCheckCard('check-latency', 'fail', 'N/A'); allOk = false; }
+
+    // 3. Website / Network
+    if (navigator.onLine) {
+        try {
+            const r = await fetch(window.location.origin, { method: 'HEAD', cache: 'no-store' });
+            updateCheckCard('check-website', r.ok ? 'ok' : 'warn', r.ok ? 'Online' : 'Degraded');
+            if (!r.ok) hasWarn = true;
+        } catch { updateCheckCard('check-website', 'ok', 'Online (local)'); }
+    } else { updateCheckCard('check-website', 'fail', 'Offline'); allOk = false; }
+
+    // 4. CDN Services
+    try {
+        const tailwind = !!window.tailwind;
+        const fb = !!window.firebase;
+        if (tailwind && fb) updateCheckCard('check-cdn', 'ok', 'All Loaded');
+        else { updateCheckCard('check-cdn', 'warn', 'Partial'); hasWarn = true; }
+    } catch { updateCheckCard('check-cdn', 'fail', 'Failed'); allOk = false; }
+
+    // 5. Local Storage
+    try {
+        localStorage.setItem('__healthcheck', '1');
+        localStorage.removeItem('__healthcheck');
+        updateCheckCard('check-storage', 'ok', 'Available');
+    } catch { updateCheckCard('check-storage', 'fail', 'Blocked'); allOk = false; }
+
+    // 6. Platform Metrics
+    try {
+        const exams = await DataService.getExams();
+        document.getElementById('metric-exams').textContent = exams.length;
+        let totalQs = 0;
+        for (const exam of exams) {
+            const qs = await DataService.getQuestions(exam.id);
+            totalQs += qs.length;
+        }
+        document.getElementById('metric-questions').textContent = totalQs;
+        const results = await DataService.getResults(null);
+        const uniqueStudents = new Set(results.map(r => r.user_email).filter(Boolean));
+        document.getElementById('metric-students').textContent = uniqueStudents.size;
+        if (results.length > 0) {
+            const sorted = [...results].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const last = new Date(sorted[0].created_at);
+            const diff = Date.now() - last.getTime();
+            const mins = Math.floor(diff / 60000);
+            let ago = mins < 1 ? 'Just now' : mins < 60 ? mins + 'm ago' : Math.floor(mins / 60) + 'h ago';
+            if (mins > 1440) ago = Math.floor(mins / 1440) + 'd ago';
+            document.getElementById('metric-last-activity').textContent = ago;
+        } else {
+            document.getElementById('metric-last-activity').textContent = 'No activity';
+        }
+    } catch (e) { console.warn('Metrics error', e); }
+
+    // Overall banner
+    const banner = document.getElementById('system-health-banner');
+    const dot = document.getElementById('system-health-dot');
+    const title = document.getElementById('system-health-title');
+    const sub = document.getElementById('system-health-subtitle');
+    dot.classList.remove('animate-pulse', 'bg-slate-300', 'bg-green-500', 'bg-red-500', 'bg-amber-500');
+    if (allOk && !hasWarn) {
+        dot.classList.add('bg-green-500'); banner.className = banner.className.replace(/border-\S+/g, '') + ' border-green-200 dark:border-green-900';
+        title.textContent = 'All Systems Operational'; sub.textContent = 'Everything is running smoothly.';
+    } else if (allOk && hasWarn) {
+        dot.classList.add('bg-amber-500'); banner.className = banner.className.replace(/border-\S+/g, '') + ' border-amber-200 dark:border-amber-900';
+        title.textContent = 'Minor Issues Detected'; sub.textContent = 'Some services are degraded.';
+    } else {
+        dot.classList.add('bg-red-500'); banner.className = banner.className.replace(/border-\S+/g, '') + ' border-red-200 dark:border-red-900';
+        title.textContent = 'System Issues Detected'; sub.textContent = 'One or more critical services are down.';
+    }
+
+    document.getElementById('system-last-check').textContent = 'Last check: ' + new Date().toLocaleTimeString();
+    if (icon) icon.classList.remove('animate-spin');
+
+    if (!systemCheckInterval) {
+        systemCheckInterval = setInterval(() => {
+            const section = document.getElementById('section-system');
+            if (section && !section.classList.contains('hidden')) runSystemChecks();
+        }, 30000);
+    }
+};
+
+// -------------------------------------------------------------------------
 // NEW CERTIFICATE GENERATOR (Based on Template)
 // -------------------------------------------------------------------------
 
@@ -1926,20 +2201,18 @@ async function generateCertificateCanvas(title, score, date, name, email) {
     ctx.fillRect(1125, 815, 60, 20); ctx.fillRect(1165, 775, 20, 60);
 
     // Load Assets
-    const [logo1, logo2, sigNitin, sigVinayak] = await Promise.all([
+    const [logo1, sigNitin, sigVinayak] = await Promise.all([
         loadCertImage('NSCH Logo (1).png'),
-        loadCertImage('campushub.jpg'),
         loadCertImage('NitinSign.png'),
         loadCertImage('VinayakSign.png')
     ]);
 
-    if (!logo1 || !logo2) {
-        throw new Error("Missing required logos (NSCH/CampusHub).");
+    if (!logo1) {
+        throw new Error("Missing required NSCH logo.");
     }
 
-    // 3. Logos (Header) - Centered
-    ctx.drawImage(logo1, 490, 60, 100, 100);
-    ctx.drawImage(logo2, 610, 60, 100, 100);
+    // 3. Logo (Header) - Centered single logo
+    ctx.drawImage(logo1, 550, 60, 100, 100);
 
     // Watermark
     ctx.save();

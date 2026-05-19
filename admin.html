@@ -10,6 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1"
         rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <!-- PDF.js for parsing PDF files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Mammoth.js for parsing DOCX files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -65,6 +69,8 @@
                         class="px-4 py-1.5 rounded-md text-sm font-bold bg-white dark:bg-slate-700 shadow-sm transition-all text-primary">Exams</button>
                     <button onclick="switchAdminTab('students')" id="nav-students"
                         class="px-4 py-1.5 rounded-md text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-all">Students</button>
+                    <button onclick="switchAdminTab('system')" id="nav-system"
+                        class="px-4 py-1.5 rounded-md text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-all">System</button>
                 </div>
             </div>
             <div class="flex gap-4">
@@ -126,6 +132,87 @@
                 </div>
             </div>
 
+            <!-- SYSTEM STATUS SECTION -->
+            <div id="section-system" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold">System Status</h2>
+                        <p class="text-xs text-slate-500">Production control room — real-time health monitoring.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="system-last-check" class="text-[10px] text-slate-400 font-bold hidden md:inline">Last check: —</span>
+                        <button onclick="runSystemChecks()" class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+                            <span class="material-symbols-outlined text-sm" id="system-refresh-icon">refresh</span> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Overall Health -->
+                <div id="system-health-banner" class="mb-6 p-6 rounded-xl border-2 flex items-center gap-4 bg-white dark:bg-[#1a2235] border-slate-200 dark:border-slate-800">
+                    <div id="system-health-dot" class="w-5 h-5 rounded-full bg-slate-300 animate-pulse shrink-0"></div>
+                    <div>
+                        <h3 id="system-health-title" class="font-bold text-lg">Checking Systems...</h3>
+                        <p id="system-health-subtitle" class="text-xs text-slate-500">Running diagnostics</p>
+                    </div>
+                </div>
+
+                <!-- Infrastructure Checks -->
+                <h3 class="text-xs font-bold uppercase text-slate-400 tracking-widest mb-3">Infrastructure</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <div id="check-firebase-auth" class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-slate-400">shield_person</span></div>
+                        <div class="flex-1 min-w-0"><p class="text-xs font-bold uppercase text-slate-400">Firebase Auth</p><p class="text-sm font-bold text-slate-600 dark:text-slate-300 truncate">Checking...</p></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-300 animate-pulse shrink-0"></div>
+                    </div>
+                    <div id="check-firestore" class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-slate-400">database</span></div>
+                        <div class="flex-1 min-w-0"><p class="text-xs font-bold uppercase text-slate-400">Firestore DB</p><p class="text-sm font-bold text-slate-600 dark:text-slate-300 truncate">Checking...</p></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-300 animate-pulse shrink-0"></div>
+                    </div>
+                    <div id="check-website" class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-slate-400">language</span></div>
+                        <div class="flex-1 min-w-0"><p class="text-xs font-bold uppercase text-slate-400">Website</p><p class="text-sm font-bold text-slate-600 dark:text-slate-300 truncate">Checking...</p></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-300 animate-pulse shrink-0"></div>
+                    </div>
+                    <div id="check-cdn" class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-slate-400">cloud_done</span></div>
+                        <div class="flex-1 min-w-0"><p class="text-xs font-bold uppercase text-slate-400">CDN Services</p><p class="text-sm font-bold text-slate-600 dark:text-slate-300 truncate">Checking...</p></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-300 animate-pulse shrink-0"></div>
+                    </div>
+                    <div id="check-storage" class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-slate-400">hard_drive</span></div>
+                        <div class="flex-1 min-w-0"><p class="text-xs font-bold uppercase text-slate-400">Local Storage</p><p class="text-sm font-bold text-slate-600 dark:text-slate-300 truncate">Checking...</p></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-300 animate-pulse shrink-0"></div>
+                    </div>
+                    <div id="check-latency" class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-slate-400">speed</span></div>
+                        <div class="flex-1 min-w-0"><p class="text-xs font-bold uppercase text-slate-400">DB Latency</p><p class="text-sm font-bold text-slate-600 dark:text-slate-300 truncate">Checking...</p></div>
+                        <div class="w-3 h-3 rounded-full bg-slate-300 animate-pulse shrink-0"></div>
+                    </div>
+                </div>
+
+                <!-- Platform Metrics -->
+                <h3 class="text-xs font-bold uppercase text-slate-400 tracking-widest mb-3">Platform Metrics</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                        <p class="text-xs font-bold uppercase text-slate-400 mb-1">Total Exams</p>
+                        <p id="metric-exams" class="text-3xl font-black text-slate-800 dark:text-white">—</p>
+                    </div>
+                    <div class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                        <p class="text-xs font-bold uppercase text-slate-400 mb-1">Total Questions</p>
+                        <p id="metric-questions" class="text-3xl font-black text-slate-800 dark:text-white">—</p>
+                    </div>
+                    <div class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                        <p class="text-xs font-bold uppercase text-slate-400 mb-1">Active Students</p>
+                        <p id="metric-students" class="text-3xl font-black text-slate-800 dark:text-white">—</p>
+                    </div>
+                    <div class="bg-white dark:bg-[#1a2235] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                        <p class="text-xs font-bold uppercase text-slate-400 mb-1">Last Activity</p>
+                        <p id="metric-last-activity" class="text-sm font-bold text-slate-800 dark:text-white mt-1">—</p>
+                    </div>
+                </div>
+            </div>
+
         </main>
 
         <!-- Mobile Bottom Nav -->
@@ -140,6 +227,11 @@
                 class="flex-1 py-3 text-xs font-bold text-slate-500 flex flex-col items-center gap-1 transition-colors border-t-2 border-transparent">
                 <span class="material-symbols-outlined">group</span>
                 Students
+            </button>
+            <button onclick="switchAdminTab('system')" id="mobile-nav-system"
+                class="flex-1 py-3 text-xs font-bold text-slate-500 flex flex-col items-center gap-1 transition-colors border-t-2 border-transparent">
+                <span class="material-symbols-outlined">monitor_heart</span>
+                System
             </button>
         </div>
 
@@ -250,6 +342,112 @@
 
     </div>
 
+    <!-- IMPORT REVIEW OVERLAY -->
+    <section id="import-review-section"
+        class="hidden fixed inset-0 z-50 bg-slate-50 dark:bg-[#101622] flex flex-col">
+        <div
+            class="bg-white dark:bg-[#1a2235] border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <button onclick="cancelImportReview()"
+                    class="text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center gap-1 font-bold text-sm bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-sm">close</span> <span
+                        class="hidden md:inline">Cancel</span>
+                </button>
+                <div>
+                    <h2 class="text-base md:text-lg font-bold" id="review-title">Review Imported Questions</h2>
+                    <p class="text-xs text-slate-500"><span id="review-approved-count">0</span>/<span
+                            id="review-total-count">0</span> approved</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="approveAllQuestions()"
+                    class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-2 rounded-lg font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">done_all</span> <span class="hidden md:inline">Approve All</span>
+                </button>
+                <button id="btn-finalize-import" onclick="finalizeImport()" disabled
+                    class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-xs shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-all">
+                    <span class="material-symbols-outlined text-sm">check_circle</span> Create Exam
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+            <!-- Left: Question List -->
+            <div
+                class="w-full md:w-1/3 h-48 md:h-full border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a2235] flex flex-col shrink-0">
+                <div
+                    class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
+                    <h3 class="font-bold text-xs uppercase text-slate-500">Parsed Questions (<span
+                            id="review-q-count">0</span>)</h3>
+                </div>
+                <div id="review-questions-list" class="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
+                </div>
+            </div>
+
+            <!-- Right: Edit Form -->
+            <div class="w-full md:w-2/3 flex-1 overflow-y-auto bg-slate-50 dark:bg-[#101622] p-4 md:p-8">
+                <div class="max-w-2xl mx-auto pb-20 md:pb-0">
+                    <div id="review-empty-state" class="text-center py-20 text-slate-400">
+                        <span class="material-symbols-outlined text-5xl mb-4 block">fact_check</span>
+                        <p class="font-bold">Select a question from the list to review</p>
+                    </div>
+                    <form id="review-question-form"
+                        class="hidden bg-white dark:bg-[#1a2235] p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-bold uppercase text-slate-400" id="review-q-label">Question
+                                1</span>
+                            <span id="review-q-status"
+                                class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-100 text-amber-700">PENDING</span>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Question Text</label>
+                            <textarea id="review-q-text" rows="3"
+                                class="w-full rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-700 p-3 focus:ring-primary focus:border-primary"
+                                placeholder="Question text..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Option A</label>
+                                <input type="text" id="review-op-a"
+                                    class="w-full rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-700 p-2">
+                            </div>
+                            <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Option B</label>
+                                <input type="text" id="review-op-b"
+                                    class="w-full rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-700 p-2">
+                            </div>
+                            <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Option C</label>
+                                <input type="text" id="review-op-c"
+                                    class="w-full rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-700 p-2">
+                            </div>
+                            <div><label class="block text-xs font-bold uppercase text-slate-500 mb-1">Option D</label>
+                                <input type="text" id="review-op-d"
+                                    class="w-full rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-700 p-2">
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Correct Answer</label>
+                            <select id="review-correct-op"
+                                class="w-full rounded-lg border-slate-200 dark:bg-slate-800 dark:border-slate-700 p-2">
+                                <option value="A">Option A</option>
+                                <option value="B">Option B</option>
+                                <option value="C">Option C</option>
+                                <option value="D">Option D</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2 flex-col-reverse md:flex-row">
+                            <button type="button" onclick="deleteReviewQuestion()"
+                                class="text-red-500 px-4 py-3 md:py-2 font-bold hover:text-red-700 rounded-lg border border-transparent hover:border-red-200 text-center text-sm">Remove
+                                Question</button>
+                            <button type="button" onclick="saveAndApproveQuestion()"
+                                class="bg-primary text-white px-6 py-3 md:py-2 rounded-lg font-bold hover:bg-primary/90 shadow-lg shadow-primary/20 flex-1 flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-sm">check</span> Save & Approve
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Create Exam Modal -->
     <div id="create-exam-modal"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
@@ -289,73 +487,45 @@
                         value="40">
                 </div>
                 <div class="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4">
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Use Pre-set Paper?</label>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Import Questions</label>
                     <div class="flex gap-4 mb-4">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="use_preset" value="no" checked
                                 onchange="document.getElementById('preset-config').classList.add('hidden')"
                                 class="text-primary focus:ring-primary">
-                            <span class="text-sm font-bold">No (Manual Entry)</span>
+                            <span class="text-sm font-bold">Manual Entry</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="radio" name="use_preset" value="yes"
                                 onchange="document.getElementById('preset-config').classList.remove('hidden')"
                                 class="text-primary focus:ring-primary">
-                            <span class="text-sm font-bold">Yes (Auto-Import)</span>
+                            <span class="text-sm font-bold">Upload File</span>
                         </label>
                     </div>
 
                     <div id="preset-config"
                         class="hidden bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-100 dark:border-slate-700 space-y-3">
 
-                        <!-- Custom File Upload Section -->
-                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700">
-                            <div class="flex justify-between items-center mb-2">
-                                <label class="block text-xs font-bold uppercase text-slate-500">Custom Set
-                                    (Optional)</label>
-                                <button type="button" onclick="downloadSampleJSON()"
-                                    class="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[10px]">download</span> Sample JSON
-                                </button>
-                            </div>
-                            <input type="file" id="custom-json-file" accept=".json"
-                                class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                            <p class="text-[10px] text-slate-400 mt-1">Upload a JSON file to use instead of the default
-                                set.</p>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs font-bold uppercase text-slate-500">Question Bank File</label>
+                            <button type="button" onclick="downloadSampleTemplate()"
+                                class="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[10px]">download</span> Sample Template
+                            </button>
                         </div>
-
-                        <p class="text-xs text-slate-500 mb-2">Select difficulty and number of questions to import:</p>
-
-                        <div class="flex items-center justify-between">
-                            <label class="flex items-center gap-2">
-                                <input type="checkbox" id="preset-easy" class="rounded text-primary focus:ring-primary">
-                                <span class="text-sm font-bold">Easy</span>
-                            </label>
-                            <input type="number" id="count-easy" min="0" placeholder="Qty"
-                                class="w-20 rounded border-slate-200 dark:bg-slate-700 p-1 text-sm disabled:opacity-50"
-                                disabled>
+                        <input type="file" id="import-question-file" accept=".pdf,.docx,.doc,.txt,.json"
+                            class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                        <p class="text-[10px] text-slate-400 mt-1">Supported: PDF, Word (.docx), Text, or JSON files.</p>
+                        <div class="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700 mt-2">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Expected Format</p>
+                            <pre class="text-[10px] text-slate-400 font-mono leading-relaxed whitespace-pre-wrap">Q: What is phishing?
+A) Online shopping
+B) Fake messages to steal data
+C) Antivirus alert
+D) Government notice
+Answer: B</pre>
                         </div>
-
-                        <div class="flex items-center justify-between">
-                            <label class="flex items-center gap-2">
-                                <input type="checkbox" id="preset-medium"
-                                    class="rounded text-primary focus:ring-primary">
-                                <span class="text-sm font-bold">Medium</span>
-                            </label>
-                            <input type="number" id="count-medium" min="0" placeholder="Qty"
-                                class="w-20 rounded border-slate-200 dark:bg-slate-700 p-1 text-sm disabled:opacity-50"
-                                disabled>
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <label class="flex items-center gap-2">
-                                <input type="checkbox" id="preset-hard" class="rounded text-primary focus:ring-primary">
-                                <span class="text-sm font-bold">Hard</span>
-                            </label>
-                            <input type="number" id="count-hard" min="0" placeholder="Qty"
-                                class="w-20 rounded border-slate-200 dark:bg-slate-700 p-1 text-sm disabled:opacity-50"
-                                disabled>
-                        </div>
+                        <p id="import-parse-status" class="text-xs font-bold text-slate-400 mt-2 hidden"></p>
                     </div>
                 </div>
 
