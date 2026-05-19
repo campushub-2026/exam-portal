@@ -6,6 +6,10 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>NSCH - CYBER AWARENESS QUIZ</title>
     <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
 
     <!-- Open Graph / Facebook -->
     <!-- Open Graph / Facebook -->
@@ -423,7 +427,31 @@
     <script type="text/javascript"
         src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+    <!-- Sentry Error Tracking -->
+    <script src="https://browser.sentry-cdn.com/8.46.0/bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+        if (typeof Sentry !== 'undefined') {
+            Sentry.init({
+                dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0',
+                environment: location.hostname === 'localhost' ? 'development' : 'production',
+                tracesSampleRate: 0.3,
+                replaysSessionSampleRate: 0.05,
+                replaysOnErrorSampleRate: 0.5,
+                ignoreErrors: [
+                    'ResizeObserver loop',
+                    'Non-Error promise rejection',
+                    'Network request failed',
+                    'Load failed',
+                    'AbortError'
+                ]
+            });
+        }
+    </script>
+
     <script src="script.js"></script>
+
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 
 </html>

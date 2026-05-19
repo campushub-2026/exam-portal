@@ -15,6 +15,71 @@ const firebaseDb = firebase.firestore();
 let firebaseAnalytics = null;
 try { firebaseAnalytics = firebase.analytics(); } catch (e) { /* analytics may not work on file:// */ }
 
+/* Firestore Offline Persistence — reduces server reads for returning students */
+firebaseDb.enablePersistence({ synchronizeTabs: true }).catch(err => {
+    if (err.code === 'failed-precondition') {
+        console.warn('[PERF] Persistence failed: multiple tabs open');
+    } else if (err.code === 'unimplemented') {
+        console.warn('[PERF] Persistence not supported in this browser');
+    }
+});
+
+/* ─── Performance Hardening Module ─── */
+const PerfEngine = {
+    _cache: new Map(),
+    _inflight: new Map(),
+    _TTL: 30000,
+
+    cachedQuery(key, queryFn, ttl) {
+        const now = Date.now();
+        const cached = this._cache.get(key);
+        if (cached && (now - cached.ts) < (ttl || this._TTL)) return Promise.resolve(cached.data);
+
+        if (this._inflight.has(key)) return this._inflight.get(key);
+
+        const promise = queryFn().then(result => {
+            this._cache.set(key, { data: result, ts: Date.now() });
+            this._inflight.delete(key);
+            return result;
+        }).catch(err => {
+            this._inflight.delete(key);
+            throw err;
+        });
+        this._inflight.set(key, promise);
+        return promise;
+    },
+
+    invalidate(keyPrefix) {
+        for (const k of this._cache.keys()) {
+            if (k.startsWith(keyPrefix)) this._cache.delete(k);
+        }
+    },
+
+    async retry(fn, maxAttempts = 3, baseDelay = 500) {
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                return await fn();
+            } catch (err) {
+                if (attempt === maxAttempts) throw err;
+                const jitter = Math.random() * 200;
+                await new Promise(r => setTimeout(r, baseDelay * Math.pow(2, attempt - 1) + jitter));
+            }
+        }
+    },
+
+    monitorConnection() {
+        window.addEventListener('online', () => {
+            document.body.classList.remove('offline-mode');
+            console.log('[PERF] Connection restored — syncing...');
+        });
+        window.addEventListener('offline', () => {
+            document.body.classList.add('offline-mode');
+            console.warn('[PERF] Connection lost — using cached data');
+        });
+    }
+};
+PerfEngine.monitorConnection();
+
 // Removed unused APP_SECRET to avoid security leak warnings on public repos.
 
 /* Global State */
@@ -319,13 +384,15 @@ const DataService = {
     },
 
     async getExams() {
-        try {
-            const snapshot = await firebaseDb.collection('exams').orderBy('date_time', 'asc').get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            console.error('getExams', error);
-            return [];
-        }
+        return PerfEngine.cachedQuery('exams:all', async () => {
+            try {
+                const snapshot = await firebaseDb.collection('exams').orderBy('date_time', 'asc').get();
+                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error('getExams', error);
+                return [];
+            }
+        }, 15000);
     },
 
     async createExam(d) {
@@ -334,6 +401,7 @@ const DataService = {
                 ...d,
                 created_at: new Date().toISOString()
             });
+            PerfEngine.invalidate('exams');
             this.refreshUI();
             return docRef.id;
         } catch (error) {
@@ -351,6 +419,8 @@ const DataService = {
             questionsSnapshot.docs.forEach(doc => batch.delete(doc.ref));
             batch.delete(firebaseDb.collection('exams').doc(id));
             await batch.commit();
+            PerfEngine.invalidate('exams');
+            PerfEngine.invalidate('questions');
             this.refreshUI();
         } catch (error) {
             console.error('deleteExam', error);
@@ -359,20 +429,21 @@ const DataService = {
 
     async getQuestions(eid) {
         if (!eid) return [];
-        try {
-            const snapshot = await firebaseDb.collection('questions').where('exam_id', '==', eid).orderBy('created_at', 'asc').get();
-            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (error) {
-            // Fallback: if composite index not ready, query without orderBy and sort client-side
-            if (error.code === 'failed-precondition') {
-                console.warn('getQuestions: Index not ready, falling back to client-side sort');
-                const snapshot = await firebaseDb.collection('questions').where('exam_id', '==', eid).get();
-                const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                return docs.sort((a, b) => (a.created_at || '').localeCompare(b.created_at || ''));
+        return PerfEngine.cachedQuery(`questions:${eid}`, async () => {
+            try {
+                const snapshot = await firebaseDb.collection('questions').where('exam_id', '==', eid).orderBy('created_at', 'asc').get();
+                return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } catch (error) {
+                if (error.code === 'failed-precondition') {
+                    console.warn('getQuestions: Index not ready, falling back to client-side sort');
+                    const snapshot = await firebaseDb.collection('questions').where('exam_id', '==', eid).get();
+                    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    return docs.sort((a, b) => (a.created_at || '').localeCompare(b.created_at || ''));
+                }
+                console.error('getQuestions', error);
+                return [];
             }
-            console.error('getQuestions', error);
-            return [];
-        }
+        }, 10000);
     },
 
     async getAllQuestions() {
@@ -392,6 +463,7 @@ const DataService = {
                 ...rest,
                 created_at: new Date().toISOString()
             });
+            PerfEngine.invalidate('questions');
         } catch (error) {
             console.error('addQuestion', error);
         }
@@ -400,6 +472,7 @@ const DataService = {
     async updateQuestion(id, u) {
         try {
             await firebaseDb.collection('questions').doc(id).update(u);
+            PerfEngine.invalidate('questions');
         } catch (error) {
             console.error('updateQuestion', error);
         }
@@ -408,6 +481,7 @@ const DataService = {
     async deleteQuestion(id) {
         try {
             await firebaseDb.collection('questions').doc(id).delete();
+            PerfEngine.invalidate('questions');
         } catch (error) {
             console.error('deleteQuestion', error);
         }
@@ -419,6 +493,7 @@ const DataService = {
             const batch = firebaseDb.batch();
             snapshot.docs.forEach(doc => batch.delete(doc.ref));
             await batch.commit();
+            PerfEngine.invalidate('questions');
         } catch (error) {
             console.error('deleteAllQuestions', error);
         }
@@ -436,28 +511,32 @@ const DataService = {
                 created_at: new Date().toISOString()
             };
             await firebaseDb.collection('exam_results').add(dbRecord);
+            PerfEngine.invalidate('results');
         } catch (error) {
             console.error('saveResult', error);
         }
     },
 
     async getResults(eid) {
-        try {
-            let query = firebaseDb.collection('exam_results');
-            if (eid) query = query.where('exam_id', '==', eid);
-            const snapshot = await query.get();
-            return snapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data,
-                    studentName: data.student_name
-                };
-            });
-        } catch (error) {
-            console.error('getResults', error);
-            return [];
-        }
+        const cacheKey = eid ? `results:${eid}` : 'results:all';
+        return PerfEngine.cachedQuery(cacheKey, async () => {
+            try {
+                let query = firebaseDb.collection('exam_results');
+                if (eid) query = query.where('exam_id', '==', eid);
+                const snapshot = await query.get();
+                return snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        studentName: data.student_name
+                    };
+                });
+            } catch (error) {
+                console.error('getResults', error);
+                return [];
+            }
+        }, 20000);
     },
 
     async resetStudentProgress(email) {

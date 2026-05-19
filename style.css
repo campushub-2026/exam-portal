@@ -147,3 +147,26 @@ body {
 .animate-fade-in {
     animation: fadeIn 0.2s ease-out;
 }
+
+/* Offline mode indicator */
+body.offline-mode::before {
+    content: '⚠ You are offline — your progress is saved locally';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 6px 16px;
+    background: #f59e0b;
+    color: #1e293b;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.02em;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
