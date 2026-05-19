@@ -544,17 +544,7 @@ Answer: B</pre>
     </div>
 
     <!-- Sentry Error Tracking -->
-    <script src="https://browser.sentry-cdn.com/8.46.0/bundle.min.js" crossorigin="anonymous"></script>
-    <script>
-        if (typeof Sentry !== 'undefined') {
-            Sentry.init({
-                dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0',
-                environment: location.hostname === 'localhost' ? 'development' : 'production',
-                tracesSampleRate: 0.3,
-                ignoreErrors: ['ResizeObserver loop', 'Non-Error promise rejection', 'AbortError']
-            });
-        }
-    </script>
+    <script src="https://js-de.sentry-cdn.com/c03a269f0eb47137cb3affe15ac7f578.min.js" crossorigin="anonymous"></script>
 
     <script src="script.js"></script>
 
