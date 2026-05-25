@@ -4,11 +4,7 @@
     "name": "campus-hub-portal",
     "rewrites": [
         {
-            "source": "/admin",
-            "destination": "/admin.html"
-        },
-        {
-            "source": "/((?!admin\\.html$).*)",
+            "source": "/(.*)",
             "destination": "/index.html"
         }
     ]
